@@ -20,6 +20,7 @@ public class MySQLConnection {
 
     // Cria as tabelas necessárias, se ainda não existirem
     public static void initializeDatabase() {
+        // Primeiro, criamos as tabelas que não têm foreign keys
         String createDisciplinaTable = "CREATE TABLE IF NOT EXISTS Disciplina ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY,"
                 + "nome VARCHAR(100) NOT NULL,"
@@ -27,6 +28,12 @@ public class MySQLConnection {
                 + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO') NOT NULL"
                 + ")";
 
+        String createTesteTable = "CREATE TABLE IF NOT EXISTS Teste ("
+                + "id INT AUTO_INCREMENT PRIMARY KEY,"
+                + "data DATE NOT NULL"
+                + ")";
+
+        // Depois, criamos a tabela Conteudo que depende das anteriores
         String createConteudoTable = "CREATE TABLE IF NOT EXISTS Conteudo ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY,"
                 + "idTeste INT,"
@@ -38,6 +45,7 @@ public class MySQLConnection {
                 + "FOREIGN KEY (idDisciplina) REFERENCES Disciplina(id)"
                 + ")";
 
+        // Por último, criamos a tabela Revisao que depende da tabela Conteudo
         String createRevisaoTable = "CREATE TABLE IF NOT EXISTS Revisao ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY,"
                 + "conteudoId INT NOT NULL,"
@@ -46,24 +54,22 @@ public class MySQLConnection {
                 + "FOREIGN KEY (conteudoId) REFERENCES Conteudo(id)"
                 + ")";
 
-        String createTesteTable = "CREATE TABLE IF NOT EXISTS Teste ("
-                + "id INT AUTO_INCREMENT PRIMARY KEY,"
-                + "data DATE NOT NULL"
-                + ")";
-
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
+            // Executando na ordem correta
             stmt.execute(createDisciplinaTable);
             stmt.execute(createTesteTable);
             stmt.execute(createConteudoTable);
             stmt.execute(createRevisaoTable);
+            System.out.println("Tabelas criadas com sucesso!");
         } catch (SQLException e) {
+            System.err.println("Erro ao criar as tabelas: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     // Exemplo de método para inserir uma disciplina
-    public void insertDisciplina(String nome, String descricao, String status) {
-        String sql = "INSERT INTO Disciplina (nome, descricao, status) VALUES (?, ?, ?)";
+    public void insertConteudo(String nome, String descricao, String status) {
+        String sql = "INSERT INTO Conteudo (nome, descricao, status) VALUES (?, ?, ?)";
 
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, nome);
@@ -75,9 +81,9 @@ public class MySQLConnection {
         }
     }
 
-    // Exemplo de método para buscar disciplinas
-    public void listDisciplinas() {
-        String sql = "SELECT * FROM Disciplina";
+    // Exemplo de método para buscar conteudo
+    public void listConteudos() {
+        String sql = "SELECT * FROM Conteudo";
 
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -95,7 +101,7 @@ public class MySQLConnection {
         initializeDatabase(); // Inicializa o banco e cria as tabelas, se necessário
 
         MySQLConnection db = new MySQLConnection();
-        db.insertDisciplina("Matemática", "Disciplina de cálculo", "CURSANDO");
-        db.listDisciplinas();
+        db.insertConteudo("Matemática", "Disciplina de cálculo", "A_FAZER");
+        db.listConteudos();
     }
 }

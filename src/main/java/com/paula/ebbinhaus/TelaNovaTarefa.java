@@ -76,8 +76,8 @@ public class TelaNovaTarefa {
         }
 
         MySQLConnection db = new MySQLConnection();
-        db.insertDisciplina(nome, descricao, status); // Insere a tarefa no banco
-        System.out.println("INSERT INTO tabela (nome, descricao, status) VALUES ('" + nome + "', '" + descricao + "', '" + status + "');");
+        db.insertConteudo(nome, descricao, status); // Insere a tarefa no banco
+        System.out.println("INSERT INTO conteudo (nome, descricao, status) VALUES ('" + nome + "', '" + descricao + "', '" + status + "');");
         System.out.println("Status selecionado: " + comboStatus.getValue());
     }
 }

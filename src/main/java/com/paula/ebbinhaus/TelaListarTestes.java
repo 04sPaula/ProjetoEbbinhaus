@@ -7,50 +7,87 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.geometry.Pos;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 
 public class TelaListarTestes {
     private BorderPane root;
     private ObservableList<Teste> testes;
+    private TableView<Teste> tabela;
 
     public TelaListarTestes(BorderPane root) {
         this.root = root;
     }
 
     public void exibir() {
-        VBox layout = new VBox(10);
-        layout.setPadding(new Insets(10));
+        VBox container = new VBox(20);
+        container.setPadding(new Insets(30));
+        container.setAlignment(Pos.TOP_CENTER);
 
-        TableView<Teste> tabela = new TableView<>();
+        Label titulo = new Label("Lista de Testes");
+        titulo.setFont(Font.font("System", FontWeight.BOLD, 24));
+
+        tabela = createStyledTableView();
         
-        // Coluna ID
         TableColumn<Teste, Integer> colunaId = new TableColumn<>("ID");
         colunaId.setCellValueFactory(new PropertyValueFactory<>("id"));
         
-        // Coluna Conteúdos
         TableColumn<Teste, String> colunaConteudos = new TableColumn<>("Conteúdos");
         colunaConteudos.setCellValueFactory(cellData -> 
-            new SimpleStringProperty(cellData.getValue().getConteudosAsString())
-        );
+            new SimpleStringProperty(cellData.getValue().getConteudosAsString()));
+        colunaConteudos.setPrefWidth(400);
         
-        // Coluna Data com DatePicker
-        TableColumn<Teste, LocalDate> colunaData = new TableColumn<>("Data");
-        colunaData.setCellValueFactory(new PropertyValueFactory<>("data"));
-        colunaData.setCellFactory(column -> new TableCell<Teste, LocalDate>() {
-            private final DatePicker datePicker = new DatePicker();
+        TableColumn<Teste, LocalDate> colunaData = createDateColumn();
+        TableColumn<Teste, Void> colunaAcoes = createActionsColumn();
+
+        tabela.getColumns().addAll(colunaId, colunaConteudos, colunaData, colunaAcoes);
+        
+        testes = carregarTestes();
+        tabela.setItems(testes);
+
+        HBox buttonContainer = new HBox(10);
+        buttonContainer.setAlignment(Pos.CENTER);
+        Button btnVoltar = createStyledButton("Voltar", false);
+        btnVoltar.setOnAction(e -> new TelaInicial(root).exibir());
+        buttonContainer.getChildren().add(btnVoltar);
+
+        container.getChildren().addAll(titulo, tabela, buttonContainer);
+        root.setCenter(container);
+    }
+
+    private TableView<Teste> createStyledTableView() {
+        TableView<Teste> table = new TableView<>();
+        table.setEditable(true);
+        table.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-border-color: #ffcbdb;" +
+            "-fx-border-width: 2;"
+        );
+        table.setPrefHeight(400);
+        return table;
+    }
+
+    private TableColumn<Teste, LocalDate> createDateColumn() {
+        TableColumn<Teste, LocalDate> column = new TableColumn<>("Data");
+        column.setCellValueFactory(new PropertyValueFactory<>("data"));
+        column.setCellFactory(col -> new TableCell<Teste, LocalDate>() {
+            private final DatePicker datePicker = createStyledDatePicker();
 
             {
                 datePicker.setOnAction(event -> {
@@ -74,19 +111,28 @@ public class TelaListarTestes {
                 }
             }
         });
+        column.setPrefWidth(150);
+        return column;
+    }
 
-        // Coluna Ações (Deletar)
-        TableColumn<Teste, Void> colunaAcoes = new TableColumn<>("Ações");
-        colunaAcoes.setCellFactory(col -> new TableCell<Teste, Void>() {
-            private final Button btnDeletar = new Button("Deletar");
+    private DatePicker createStyledDatePicker() {
+        DatePicker picker = new DatePicker();
+        picker.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-border-color: #ffcbdb;" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 3;" +
+            "-fx-background-radius: 3;"
+        );
+        return picker;
+    }
+
+    private TableColumn<Teste, Void> createActionsColumn() {
+        TableColumn<Teste, Void> column = new TableColumn<>("Ações");
+        column.setCellFactory(col -> new TableCell<Teste, Void>() {
+            private final Button btnDeletar = createDeleteButton();
 
             {
-                btnDeletar.setStyle(
-                    "-fx-background-color: #ff4444;" +
-                    "-fx-text-fill: white;" +
-                    "-fx-cursor: hand;"
-                );
-
                 btnDeletar.setOnAction(event -> {
                     Teste teste = getTableRow().getItem();
                     if (teste != null) {
@@ -98,27 +144,84 @@ public class TelaListarTestes {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(btnDeletar);
-                }
+                setGraphic(empty ? null : btnDeletar);
             }
         });
+        return column;
+    }
 
-        tabela.setEditable(true);
-        tabela.getColumns().addAll(colunaId, colunaConteudos, colunaData, colunaAcoes);
+    private Button createDeleteButton() {
+        Button btn = new Button("Deletar");
+        btn.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-text-fill: #ff4444;" +
+            "-fx-border-color: #ff4444;" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 3;" +
+            "-fx-background-radius: 3;" +
+            "-fx-cursor: hand;"
+        );
+        btn.setOnMouseEntered(e -> btn.setStyle(
+            "-fx-background-color: #ff4444;" +
+            "-fx-text-fill: white;" +
+            "-fx-border-color: #ff4444;" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 3;" +
+            "-fx-background-radius: 3;" +
+            "-fx-cursor: hand;"
+        ));
+        btn.setOnMouseExited(e -> btn.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-text-fill: #ff4444;" +
+            "-fx-border-color: #ff4444;" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 3;" +
+            "-fx-background-radius: 3;" +
+            "-fx-cursor: hand;"
+        ));
+        return btn;
+    }
+
+    private Button createStyledButton(String text, boolean isPrimary) {
+        Button button = new Button(text);
+        button.setMinWidth(120);
+        button.setMinHeight(40);
         
-        // Carrega os dados e armazena na variável de instância
-        testes = carregarTestes();
-        tabela.setItems(testes);
-
-        // Botão Voltar
-        Button btnVoltar = new Button("Voltar");
-        btnVoltar.setOnAction(e -> new TelaInicial(root).exibir());
-
-        layout.getChildren().addAll(tabela, btnVoltar);
-        root.setCenter(layout);
+        String baseStyle = isPrimary ? 
+            "-fx-background-color: #ffcbdb;" :
+            "-fx-background-color: white;" +
+            "-fx-border-color: #ffcbdb;" +
+            "-fx-border-width: 2;";
+            
+        button.setStyle(
+            baseStyle +
+            "-fx-text-fill: black;" +
+            "-fx-font-size: 14px;" +
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-cursor: hand;"
+        );
+        
+        button.setOnMouseEntered(e -> 
+            button.setStyle(
+                "-fx-background-color: #ff709b;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 14px;" +
+                "-fx-background-radius: 5;" +
+                "-fx-border-radius: 5;" +
+                "-fx-cursor: hand;"
+            )
+        );
+        
+        button.setOnMouseExited(e -> button.setStyle(baseStyle +
+            "-fx-text-fill: black;" +
+            "-fx-font-size: 14px;" +
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-cursor: hand;"
+        ));
+        
+        return button;
     }
 
     private void confirmarDelecao(Teste teste) {
@@ -152,7 +255,6 @@ public class TelaListarTestes {
     private void deletarTeste(Teste teste) {
         try {
             if (teste.deletar()) {
-                // Remove o teste da lista observável
                 testes.remove(teste);
                 mostrarMensagemSucesso("Teste deletado com sucesso!");
             } else {

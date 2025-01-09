@@ -1,12 +1,12 @@
 package com.paula.ebbinhaus;
 
-import javafx.geometry.Insets;
-import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
 import java.sql.*;
 import java.time.LocalDate;
 import com.paula.ebbinhaus.Conteudo.Status;
@@ -20,42 +20,123 @@ public class TelaNovoTeste {
     }
 
     public void exibir() {
-        GridPane form = new GridPane();
-        form.setPadding(new Insets(10));
-        form.setHgap(10);
-        form.setVgap(10);
+        VBox container = new VBox(20);
+        container.setPadding(new Insets(30));
+        container.setAlignment(Pos.TOP_CENTER);
 
-        // Título
-        Text title = new Text("Novo Teste");
+        // Title
+        Label titulo = new Label("Novo Teste");
+        titulo.setFont(Font.font("System", FontWeight.BOLD, 24));
+        
+        // Form container
+        VBox form = new VBox(15);
+        form.setMaxWidth(600);
+        form.setAlignment(Pos.CENTER);
 
-        // DatePicker para selecionar a data
-        DatePicker datePicker = new DatePicker();
+        // DatePicker
+        DatePicker datePicker = createStyledDatePicker();
         datePicker.setValue(LocalDate.now());
 
-        // ListView para mostrar e selecionar conteúdos
+        // ListView
         listaConteudos = new ListView<>();
-        listaConteudos.setPrefHeight(200);
+        listaConteudos.setPrefHeight(300);
         listaConteudos.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        styleListView(listaConteudos);
         carregarConteudos();
 
-        // Botões
-        Button btnSalvar = new Button("Salvar");
+        // Buttons
+        HBox buttonContainer = new HBox(10);
+        buttonContainer.setAlignment(Pos.CENTER);
+        
+        Button btnVoltar = createStyledButton("Voltar", false);
+        Button btnSalvar = createStyledButton("Salvar", true);
+        
+        btnVoltar.setOnAction(e -> new TelaInicial(root).exibir());
         btnSalvar.setOnAction(e -> salvarTeste(datePicker.getValue(), 
             listaConteudos.getSelectionModel().getSelectedItems()));
+        
+        buttonContainer.getChildren().addAll(btnVoltar, btnSalvar);
 
-        Button btnVoltar = new Button("Voltar");
-        btnVoltar.setOnAction(e -> new TelaInicial(root).exibir());
+        form.getChildren().addAll(
+            createFieldLabel("Data do Teste:"),
+            datePicker,
+            createFieldLabel("Selecione os Conteúdos:"),
+            listaConteudos,
+            buttonContainer
+        );
 
-        // Montando o formulário
-        form.add(title, 0, 0, 2, 1);
-        form.add(new Text("Data:"), 0, 1);
-        form.add(datePicker, 1, 1);
-        form.add(new Text("Conteúdos:"), 0, 2);
-        form.add(listaConteudos, 1, 2);
-        form.add(btnVoltar, 0, 3);
-        form.add(btnSalvar, 1, 3);
+        container.getChildren().addAll(titulo, form);
+        root.setCenter(container);
+    }
 
-        root.setCenter(form);
+    private Label createFieldLabel(String text) {
+        Label label = new Label(text);
+        label.setFont(Font.font("System", FontWeight.BOLD, 14));
+        return label;
+    }
+
+    private DatePicker createStyledDatePicker() {
+        DatePicker picker = new DatePicker();
+        picker.setPrefHeight(40);
+        picker.setMaxWidth(600);
+        picker.setStyle(
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-border-color: #ffcbdb;" +
+            "-fx-border-width: 2;"
+        );
+        return picker;
+    }
+
+    private void styleListView(ListView<?> listView) {
+        listView.setStyle(
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-border-color: #ffcbdb;" +
+            "-fx-border-width: 2;"
+        );
+    }
+
+    private Button createStyledButton(String text, boolean isPrimary) {
+        Button button = new Button(text);
+        button.setMinWidth(120);
+        button.setMinHeight(40);
+        
+        String baseStyle = isPrimary ? 
+            "-fx-background-color: #ffcbdb;" :
+            "-fx-background-color: white;" +
+            "-fx-border-color: #ffcbdb;" +
+            "-fx-border-width: 2;";
+            
+        button.setStyle(
+            baseStyle +
+            "-fx-text-fill: black;" +
+            "-fx-font-size: 14px;" +
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-cursor: hand;"
+        );
+        
+        button.setOnMouseEntered(e -> 
+            button.setStyle(
+                "-fx-background-color: #ff709b;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 14px;" +
+                "-fx-background-radius: 5;" +
+                "-fx-border-radius: 5;" +
+                "-fx-cursor: hand;"
+            )
+        );
+        
+        button.setOnMouseExited(e -> button.setStyle(baseStyle +
+            "-fx-text-fill: black;" +
+            "-fx-font-size: 14px;" +
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-cursor: hand;"
+        ));
+        
+        return button;
     }
 
     private void carregarConteudos() {

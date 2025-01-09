@@ -1,83 +1,179 @@
 package com.paula.ebbinhaus;
 
 import javafx.geometry.Insets;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
 
 public class TelaNovaTarefa {
     private BorderPane root;
-    private Stage stage;
     private ComboBox<String> comboStatus;
 
     public TelaNovaTarefa(BorderPane root) {
         this.root = root;
     }
     
-
     public void exibir() {
-        BorderPane novaTarefaPane = new BorderPane();
-        GridPane form = new GridPane();
-        form.setPadding(new Insets(10));
-        form.setHgap(10);
-        form.setVgap(10);
+        VBox container = new VBox(20);
+        container.setPadding(new Insets(30));
+        container.setAlignment(Pos.TOP_CENTER);
 
-        Scene scene = new Scene(new Group(), 800, 600);
+        // Title
+        Label titulo = new Label("Nova Tarefa");
+        titulo.setFont(Font.font("System", FontWeight.BOLD, 24));
+        
+        // Form container
+        VBox form = new VBox(15);
+        form.setMaxWidth(500);
+        form.setAlignment(Pos.CENTER);
 
-        // Título da tela
-        Text title = new Text("Nova Tarefa");
-
-        // Campos para nome e descrição
-        TextField txtNome = new TextField();
-        TextField txtDescricao = new TextField();
-
-        // ComboBox para selecionar o status
+        // Form fields
+        TextField txtNome = createStyledTextField("Nome da Tarefa");
+        TextArea txtDescricao = createStyledTextArea("Descrição");
+        
         comboStatus = new ComboBox<>();
         comboStatus.getItems().addAll("A_FAZER", "EM_PROGRESSO", "EM_PAUSA", "CONCLUIDO");
+        comboStatus.setPromptText("Selecione o Status");
+        styleComboBox(comboStatus);
 
-        VBox layout = new VBox(10);
-        layout.getChildren().add(comboStatus);
-
-        // Botão para salvar a tarefa
-        Button btnSalvar = new Button("Salvar");
-        btnSalvar.setOnAction(e -> salvarTarefa(txtNome.getText(), txtDescricao.getText(), comboStatus.getValue()));
-
-        // Botão para voltar à tela inicial
-        Button btnVoltar = new Button("Voltar");
+        // Buttons
+        HBox buttonContainer = new HBox(10);
+        buttonContainer.setAlignment(Pos.CENTER);
+        
+        Button btnVoltar = createStyledButton("Voltar", false);
+        Button btnSalvar = createStyledButton("Salvar", true);
+        
         btnVoltar.setOnAction(e -> new TelaInicial(root).exibir());
+        btnSalvar.setOnAction(e -> salvarTarefa(txtNome.getText(), txtDescricao.getText(), comboStatus.getValue()));
+        
+        buttonContainer.getChildren().addAll(btnVoltar, btnSalvar);
 
-        // Adiciona os elementos ao formulário
-        form.add(title, 0, 0, 2, 1);
-        form.add(new Text("Nome:"), 0, 1);
-        form.add(txtNome, 1, 1);
-        form.add(new Text("Descrição:"), 0, 2);
-        form.add(txtDescricao, 1, 2);
-        form.add(new Text("Status:"), 0, 3);
-        form.add(comboStatus, 1, 3);
-        form.add(btnSalvar, 1, 4);
-        form.add(btnVoltar, 0, 4);
+        form.getChildren().addAll(
+            createFieldLabel("Nome:"),
+            txtNome,
+            createFieldLabel("Descrição:"),
+            txtDescricao,
+            createFieldLabel("Status:"),
+            comboStatus,
+            buttonContainer
+        );
 
-        // Define o formulário como centro do layout
-        root.setCenter(form);
+        container.getChildren().addAll(titulo, form);
+        root.setCenter(container);
+    }
 
+    private Label createFieldLabel(String text) {
+        Label label = new Label(text);
+        label.setFont(Font.font("System", FontWeight.BOLD, 14));
+        return label;
+    }
+
+    private TextField createStyledTextField(String prompt) {
+        TextField field = new TextField();
+        field.setPromptText(prompt);
+        field.setMaxWidth(500);
+        field.setPrefHeight(40);
+        field.setStyle(
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-border-color: #ffcbdb;" +
+            "-fx-border-width: 2;" +
+            "-fx-padding: 5;"
+        );
+        return field;
+    }
+
+    private TextArea createStyledTextArea(String prompt) {
+        TextArea area = new TextArea();
+        area.setPromptText(prompt);
+        area.setMaxWidth(500);
+        area.setPrefRowCount(3);
+        area.setWrapText(true);
+        area.setStyle(
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-border-color: #ffcbdb;" +
+            "-fx-border-width: 2;" +
+            "-fx-padding: 5;"
+        );
+        return area;
+    }
+
+    private void styleComboBox(ComboBox<?> combo) {
+        combo.setMaxWidth(500);
+        combo.setPrefHeight(40);
+        combo.setStyle(
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-border-color: #ffcbdb;" +
+            "-fx-border-width: 2;" +
+            "-fx-padding: 5;"
+        );
+    }
+
+    private Button createStyledButton(String text, boolean isPrimary) {
+        Button button = new Button(text);
+        button.setMinWidth(120);
+        button.setMinHeight(40);
+        
+        String baseStyle = isPrimary ? 
+            "-fx-background-color: #ffcbdb;" :
+            "-fx-background-color: white;" +
+            "-fx-border-color: #ffcbdb;" +
+            "-fx-border-width: 2;";
+            
+        button.setStyle(
+            baseStyle +
+            "-fx-text-fill: black;" +
+            "-fx-font-size: 14px;" +
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-cursor: hand;"
+        );
+        
+        button.setOnMouseEntered(e -> 
+            button.setStyle(
+                "-fx-background-color: #ff709b;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 14px;" +
+                "-fx-background-radius: 5;" +
+                "-fx-border-radius: 5;" +
+                "-fx-cursor: hand;"
+            )
+        );
+        
+        button.setOnMouseExited(e -> button.setStyle(baseStyle +
+            "-fx-text-fill: black;" +
+            "-fx-font-size: 14px;" +
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-cursor: hand;"
+        ));
+        
+        return button;
     }
 
     private void salvarTarefa(String nome, String descricao, String status) {
         if (nome == null || nome.isEmpty() || status == null) {
-            System.out.println("Preencha todos os campos obrigatórios!");
+            showAlert("Erro", "Preencha todos os campos obrigatórios!");
             return;
         }
 
-        MySQLConnection db = new MySQLConnection();
-        db.insertConteudo(nome, descricao, status); // Insere a tarefa no banco
-        System.out.println("INSERT INTO conteudo (nome, descricao, status) VALUES ('" + nome + "', '" + descricao + "', '" + status + "');");
-        System.out.println("Status selecionado: " + comboStatus.getValue());
+        try {
+            MySQLConnection db = new MySQLConnection();
+            db.insertConteudo(nome, descricao, status);
+            showAlert("Sucesso", "Tarefa criada com sucesso!");
+            new TelaInicial(root).exibir();
+        } catch (Exception e) {
+            showAlert("Erro", "Erro ao salvar tarefa: " + e.getMessage());
+        }
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

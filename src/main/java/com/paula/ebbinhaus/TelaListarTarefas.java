@@ -10,11 +10,16 @@ import com.paula.ebbinhaus.Conteudo.Status;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+
 
 public class TelaListarTarefas {
     private BorderPane root;
@@ -25,46 +30,84 @@ public class TelaListarTarefas {
     }
 
     public void exibir() {
-        TableView<Conteudo> tabela = new TableView<>();
-        VBox layout = new VBox(10);
-        layout.setPadding(new Insets(10));
+        VBox container = new VBox(20);
+        container.setPadding(new Insets(30));
+        container.setAlignment(Pos.TOP_CENTER);
+
+        // Title
+        Label titulo = new Label("Lista de Tarefas");
+        titulo.setFont(Font.font("System", FontWeight.BOLD, 24));
+
+        // Table setup
+        TableView<Conteudo> tabela = createStyledTableView();
         
+        // Columns
         TableColumn<Conteudo, Integer> colunaId = new TableColumn<>("ID");
         colunaId.setCellValueFactory(new PropertyValueFactory<>("id"));
         
         TableColumn<Conteudo, String> colunaNome = new TableColumn<>("Nome");
         colunaNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        colunaNome.setPrefWidth(200);
         
         TableColumn<Conteudo, String> colunaDescricao = new TableColumn<>("Descrição");
         colunaDescricao.setCellValueFactory(new PropertyValueFactory<>("descricao"));
+        colunaDescricao.setPrefWidth(300);
         
-        // Configurando a coluna de status para ser editável
-        TableColumn<Conteudo, Status> colunaStatus = new TableColumn<>("Status");
-        colunaStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-        colunaStatus.setCellFactory(ComboBoxTableCell.forTableColumn(
+        TableColumn<Conteudo, Status> colunaStatus = createStatusColumn();
+        TableColumn<Conteudo, Void> colunaAcoes = createActionsColumn();
+
+        tabela.getColumns().addAll(colunaId, colunaNome, colunaDescricao, colunaStatus, colunaAcoes);
+        
+        conteudos = carregarConteudos();
+        tabela.setItems(conteudos);
+
+        // Button container
+        HBox buttonContainer = new HBox(10);
+        buttonContainer.setAlignment(Pos.CENTER);
+        Button btnVoltar = createStyledButton("Voltar", false);
+        btnVoltar.setOnAction(e -> new TelaInicial(root).exibir());
+        buttonContainer.getChildren().add(btnVoltar);
+
+        container.getChildren().addAll(titulo, tabela, buttonContainer);
+        root.setCenter(container);
+    }
+
+    private TableView<Conteudo> createStyledTableView() {
+        TableView<Conteudo> tabela = new TableView<>();
+        tabela.setEditable(true);
+        tabela.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-border-color: #ffcbdb;" +
+            "-fx-border-width: 2;"
+        );
+        tabela.setPrefHeight(400);
+        return tabela;
+    }
+
+    private TableColumn<Conteudo, Status> createStatusColumn() {
+        TableColumn<Conteudo, Status> column = new TableColumn<>("Status");
+        column.setCellValueFactory(new PropertyValueFactory<>("status"));
+        column.setCellFactory(ComboBoxTableCell.forTableColumn(
             FXCollections.observableArrayList(Status.values())
         ));
-        
-        // Adicionando o evento de edição
-        colunaStatus.setOnEditCommit(event -> {
+        column.setOnEditCommit(event -> {
             Conteudo conteudo = event.getRowValue();
             Status novoStatus = event.getNewValue();
             conteudo.setStatus(novoStatus);
             atualizarStatusNoBanco(conteudo.getId(), novoStatus);
         });
+        column.setPrefWidth(150);
+        return column;
+    }
 
-        // Coluna Ações (Deletar)
-        TableColumn<Conteudo, Void> colunaAcoes = new TableColumn<>("Ações");
-        colunaAcoes.setCellFactory(col -> new TableCell<Conteudo, Void>() {
-            private final Button btnDeletar = new Button("Deletar");
+    private TableColumn<Conteudo, Void> createActionsColumn() {
+        TableColumn<Conteudo, Void> column = new TableColumn<>("Ações");
+        column.setCellFactory(col -> new TableCell<Conteudo, Void>() {
+            private final Button btnDeletar = createDeleteButton();
 
             {
-                btnDeletar.setStyle(
-                    "-fx-background-color: #ff4444;" +
-                    "-fx-text-fill: white;" +
-                    "-fx-cursor: hand;"
-                );
-
                 btnDeletar.setOnAction(event -> {
                     Conteudo conteudo = getTableRow().getItem();
                     if (conteudo != null) {
@@ -76,26 +119,84 @@ public class TelaListarTarefas {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(btnDeletar);
-                }
+                setGraphic(empty ? null : btnDeletar);
             }
         });
+        return column;
+    }
 
-        tabela.setEditable(true);
-        tabela.getColumns().addAll(colunaId, colunaNome, colunaDescricao, colunaStatus, colunaAcoes);
-        
-        // Carrega os dados e armazena na variável de instância
-        conteudos = carregarConteudos();
-        tabela.setItems(conteudos);
-        
-        Button btnVoltar = new Button("Voltar");
-        btnVoltar.setOnAction(e -> new TelaInicial(root).exibir());
+    private Button createDeleteButton() {
+        Button btn = new Button("Deletar");
+        btn.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-text-fill: #ff4444;" +
+            "-fx-border-color: #ff4444;" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 3;" +
+            "-fx-background-radius: 3;" +
+            "-fx-cursor: hand;"
+        );
+        btn.setOnMouseEntered(e -> btn.setStyle(
+            "-fx-background-color: #ff4444;" +
+            "-fx-text-fill: white;" +
+            "-fx-border-color: #ff4444;" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 3;" +
+            "-fx-background-radius: 3;" +
+            "-fx-cursor: hand;"
+        ));
+        btn.setOnMouseExited(e -> btn.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-text-fill: #ff4444;" +
+            "-fx-border-color: #ff4444;" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 3;" +
+            "-fx-background-radius: 3;" +
+            "-fx-cursor: hand;"
+        ));
+        return btn;
+    }
 
-        layout.getChildren().addAll(tabela, btnVoltar);
-        root.setCenter(layout);
+    private Button createStyledButton(String text, boolean isPrimary) {
+        Button button = new Button(text);
+        button.setMinWidth(120);
+        button.setMinHeight(40);
+        
+        String baseStyle = isPrimary ? 
+            "-fx-background-color: #ffcbdb;" :
+            "-fx-background-color: white;" +
+            "-fx-border-color: #ffcbdb;" +
+            "-fx-border-width: 2;";
+            
+        button.setStyle(
+            baseStyle +
+            "-fx-text-fill: black;" +
+            "-fx-font-size: 14px;" +
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-cursor: hand;"
+        );
+        
+        button.setOnMouseEntered(e -> 
+            button.setStyle(
+                "-fx-background-color: #ff709b;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 14px;" +
+                "-fx-background-radius: 5;" +
+                "-fx-border-radius: 5;" +
+                "-fx-cursor: hand;"
+            )
+        );
+        
+        button.setOnMouseExited(e -> button.setStyle(baseStyle +
+            "-fx-text-fill: black;" +
+            "-fx-font-size: 14px;" +
+            "-fx-background-radius: 5;" +
+            "-fx-border-radius: 5;" +
+            "-fx-cursor: hand;"
+        ));
+        
+        return button;
     }
 
     private void confirmarDelecao(Conteudo conteudo) {

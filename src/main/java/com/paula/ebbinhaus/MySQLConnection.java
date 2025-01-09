@@ -99,9 +99,6 @@ public class MySQLConnection {
 
     public static void main(String[] args) {
         initializeDatabase(); // Inicializa o banco e cria as tabelas, se necessário
-
         MySQLConnection db = new MySQLConnection();
-        db.insertConteudo("Matemática", "Disciplina de cálculo", "A_FAZER");
-        db.listConteudos();
     }
 }

@@ -1,5 +1,9 @@
 package com.paula.ebbinhaus;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public class Conteudo {
     private int id;
     private int idTeste;
@@ -8,7 +12,7 @@ public class Conteudo {
     private String descricao;
     private Status status;
 
-    public enum Status{
+    public enum Status {
         A_FAZER, EM_PROGRESSO, EM_PAUSA, CONCLUIDO
     }
 
@@ -17,7 +21,6 @@ public class Conteudo {
         this.nome = nome;
         this.descricao = descricao;
         this.status = status;
-
     }
 
     public Conteudo(int id, String nome, Status status) {
@@ -27,8 +30,40 @@ public class Conteudo {
         this.descricao = null;
     }
 
-    // Getters e setters
+    // Método para deletar o conteúdo do banco de dados
+    public boolean deletar() throws SQLException {
+        String sql = "DELETE FROM Conteudo WHERE id = ?";
 
+        try (Connection conn = MySQLConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, this.id);
+            int linhasAfetadas = stmt.executeUpdate();
+            
+            return linhasAfetadas > 0;
+        }
+    }
+
+    // Método para atualizar o status no banco de dados
+    public boolean atualizarStatus(Status novoStatus) throws SQLException {
+        String sql = "UPDATE Conteudo SET status = ? WHERE id = ?";
+        
+        try (Connection conn = MySQLConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, novoStatus.toString());
+            stmt.setInt(2, this.id);
+            int linhasAfetadas = stmt.executeUpdate();
+            
+            if (linhasAfetadas > 0) {
+                this.status = novoStatus;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    // Getters e setters existentes
     public int getId() {
         return id;
     }

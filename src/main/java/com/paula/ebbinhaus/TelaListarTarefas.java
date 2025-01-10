@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import com.paula.ebbinhaus.Conteudo.Status;
+import javafx.stage.Stage;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -38,6 +39,10 @@ public class TelaListarTarefas {
         // Title
         Label titulo = new Label("Lista de Tarefas");
         titulo.setFont(Font.font("System", FontWeight.BOLD, 24));
+        
+        //Description
+        Label explicacao = new Label("Dica: Clique duas vezes no status para uma edição rápida, ou use o botão de editar para modificar todas as informações.");
+        explicacao.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
 
         // Table setup
         TableView<Conteudo> tabela = createStyledTableView();
@@ -69,7 +74,7 @@ public class TelaListarTarefas {
         btnVoltar.setOnAction(e -> new TelaInicial(root).exibir());
         buttonContainer.getChildren().add(btnVoltar);
 
-        container.getChildren().addAll(titulo, tabela, buttonContainer);
+        container.getChildren().addAll(titulo, explicacao, tabela, buttonContainer);
         root.setCenter(container);
     }
 
@@ -108,6 +113,7 @@ public class TelaListarTarefas {
         column.setCellFactory(col -> new TableCell<Conteudo, Void>() {
             private final HBox container = new HBox(5);
             private final Button btnDetalhes = createActionButton("Detalhes", "#4CAF50");
+            private final Button btnEditar = createActionButton("Editar", "#FFA500");  // Botão laranja
             private final Button btnDeletar = createDeleteButton();
 
             {
@@ -118,6 +124,16 @@ public class TelaListarTarefas {
                     }
                 });
                 
+                btnEditar.setOnAction(event -> {
+                    Conteudo conteudo = getTableRow().getItem();
+                    if (conteudo != null) {
+                        new TelaEditarConteudo(conteudo, 
+                                             (Stage) root.getScene().getWindow(),
+                                             () -> conteudos.set(getIndex(), conteudo))
+                            .mostrar();
+                    }
+                });
+                
                 btnDeletar.setOnAction(event -> {
                     Conteudo conteudo = getTableRow().getItem();
                     if (conteudo != null) {
@@ -125,7 +141,7 @@ public class TelaListarTarefas {
                     }
                 });
                 
-                container.getChildren().addAll(btnDetalhes, btnDeletar);
+                container.getChildren().addAll(btnDetalhes, btnEditar, btnDeletar);
             }
 
             @Override

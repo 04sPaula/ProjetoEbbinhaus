@@ -35,15 +35,16 @@ public class MySQLConnection {
 
         // Depois, criamos a tabela Conteudo que depende das anteriores
         String createConteudoTable = "CREATE TABLE IF NOT EXISTS Conteudo ("
-                + "id INT AUTO_INCREMENT PRIMARY KEY,"
-                + "idTeste INT,"
-                + "idDisciplina INT,"
-                + "nome VARCHAR(100) NOT NULL,"
-                + "descricao TEXT,"
-                + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO') NOT NULL,"
-                + "FOREIGN KEY (idTeste) REFERENCES Teste(id),"
-                + "FOREIGN KEY (idDisciplina) REFERENCES Disciplina(id)"
-                + ")";
+        	    + "id INT AUTO_INCREMENT PRIMARY KEY,"
+        	    + "idTeste INT,"
+        	    + "idDisciplina INT,"
+        	    + "nome VARCHAR(100) NOT NULL,"
+        	    + "descricao TEXT,"
+        	    + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO') NOT NULL,"
+        	    + "dataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP," // Nova coluna
+        	    + "FOREIGN KEY (idTeste) REFERENCES Teste(id),"
+        	    + "FOREIGN KEY (idDisciplina) REFERENCES Disciplina(id)"
+        	    + ")";
 
         // Por último, criamos a tabela Revisao que depende da tabela Conteudo
         String createRevisaoTable = "CREATE TABLE IF NOT EXISTS Revisao ("

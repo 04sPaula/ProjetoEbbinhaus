@@ -9,6 +9,8 @@ import javafx.scene.layout.*;
 import javafx.scene.text.*;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import com.paula.ebbinhaus.Conteudo.Status;
 
 public class TelaNovoTeste {
@@ -152,8 +154,9 @@ public class TelaNovoTeste {
                 String nome = rs.getString("nome");
                 String descricao = rs.getString("descricao");
                 Status status = Status.valueOf(rs.getString("status"));
+                LocalDateTime dataCriacao = rs.getTimestamp("dataCriacao").toLocalDateTime();
                 
-                Conteudo conteudo = new Conteudo(id, nome, descricao, status);
+                Conteudo conteudo = new Conteudo(id, nome, descricao, status, dataCriacao);
                 conteudos.add(conteudo);
             }
             

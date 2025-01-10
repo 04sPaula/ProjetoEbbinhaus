@@ -312,7 +312,7 @@ public class TelaListarTestes {
                 int conteudoId = rs.getInt("conteudoId");
                 if (conteudoId != 0) {
                     String conteudoNome = rs.getString("conteudoNome");
-                    teste.getConteudos().add(new Conteudo(conteudoId, conteudoNome, null, null));
+                    teste.getConteudos().add(new Conteudo(conteudoId, conteudoNome, null, null, null));
                 }
             }
         } catch (SQLException e) {

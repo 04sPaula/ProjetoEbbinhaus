@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import com.paula.ebbinhaus.Conteudo.Status;
 
@@ -105,21 +106,32 @@ public class TelaListarTarefas {
     private TableColumn<Conteudo, Void> createActionsColumn() {
         TableColumn<Conteudo, Void> column = new TableColumn<>("Ações");
         column.setCellFactory(col -> new TableCell<Conteudo, Void>() {
+            private final HBox container = new HBox(5);
+            private final Button btnDetalhes = createActionButton("Detalhes", "#4CAF50");
             private final Button btnDeletar = createDeleteButton();
 
             {
+                btnDetalhes.setOnAction(event -> {
+                    Conteudo conteudo = getTableRow().getItem();
+                    if (conteudo != null) {
+                        new TelaDetalhesConteudo(root, conteudo).exibir();
+                    }
+                });
+                
                 btnDeletar.setOnAction(event -> {
                     Conteudo conteudo = getTableRow().getItem();
                     if (conteudo != null) {
                         confirmarDelecao(conteudo);
                     }
                 });
+                
+                container.getChildren().addAll(btnDetalhes, btnDeletar);
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : btnDeletar);
+                setGraphic(empty ? null : container);
             }
         });
         return column;
@@ -226,6 +238,38 @@ public class TelaListarTarefas {
         alert.setContentText(mensagem);
         alert.showAndWait();
     }
+    
+    private Button createActionButton(String text, String color) {
+        Button btn = new Button(text);
+        btn.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-text-fill: " + color + ";" +
+            "-fx-border-color: " + color + ";" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 3;" +
+            "-fx-background-radius: 3;" +
+            "-fx-cursor: hand;"
+        );
+        btn.setOnMouseEntered(e -> btn.setStyle(
+            "-fx-background-color: " + color + ";" +
+            "-fx-text-fill: white;" +
+            "-fx-border-color: " + color + ";" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 3;" +
+            "-fx-background-radius: 3;" +
+            "-fx-cursor: hand;"
+        ));
+        btn.setOnMouseExited(e -> btn.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-text-fill: " + color + ";" +
+            "-fx-border-color: " + color + ";" +
+            "-fx-border-width: 1;" +
+            "-fx-border-radius: 3;" +
+            "-fx-background-radius: 3;" +
+            "-fx-cursor: hand;"
+        ));
+        return btn;
+    }
 
     private void deletarConteudo(Conteudo conteudo) {
         try {
@@ -262,7 +306,7 @@ public class TelaListarTarefas {
 
     private ObservableList<Conteudo> carregarConteudos() {
         ObservableList<Conteudo> conteudos = FXCollections.observableArrayList();
-        String sql = "SELECT id, nome, descricao, status FROM Conteudo WHERE idTeste IS NULL";
+        String sql = "SELECT id, nome, descricao, status, dataCriacao FROM Conteudo WHERE idTeste IS NULL";
         
         try (Connection conn = MySQLConnection.getConnection(); 
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -274,8 +318,9 @@ public class TelaListarTarefas {
                 String descricao = rs.getString("descricao");
                 String statusStr = rs.getString("status");
                 Status status = Status.valueOf(statusStr);
+                LocalDateTime dataCriacao = rs.getTimestamp("dataCriacao").toLocalDateTime();
                 
-                conteudos.add(new Conteudo(id, nome, descricao, status));
+                conteudos.add(new Conteudo(id, nome, descricao, status, dataCriacao));
             }
         } catch (SQLException e) {
             e.printStackTrace();

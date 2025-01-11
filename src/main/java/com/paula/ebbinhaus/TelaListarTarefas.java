@@ -36,19 +36,15 @@ public class TelaListarTarefas {
         container.setPadding(new Insets(30));
         container.setAlignment(Pos.TOP_CENTER);
 
-        // Title
         Label titulo = new Label("Lista de Tarefas");
         titulo.setFont(Font.font("System", FontWeight.BOLD, 24));
         
-        //Description
         Label explicacao = new Label("Dica: Clique duas vezes no status para uma edição rápida, ou use o botão de editar para modificar todas as informações.");
         explicacao.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
 
-        // Table setup
         TableView<Conteudo> tabela = createStyledTableView();
         
-        // Columns
-        TableColumn<Conteudo, Integer> colunaId = new TableColumn<>("ID");
+                TableColumn<Conteudo, Integer> colunaId = new TableColumn<>("ID");
         colunaId.setCellValueFactory(new PropertyValueFactory<>("id"));
         
         TableColumn<Conteudo, String> colunaNome = new TableColumn<>("Nome");
@@ -67,7 +63,6 @@ public class TelaListarTarefas {
         conteudos = carregarConteudos();
         tabela.setItems(conteudos);
 
-        // Button container
         HBox buttonContainer = new HBox(10);
         buttonContainer.setAlignment(Pos.CENTER);
         Button btnVoltar = createStyledButton("Voltar", false);
@@ -113,7 +108,7 @@ public class TelaListarTarefas {
         column.setCellFactory(col -> new TableCell<Conteudo, Void>() {
             private final HBox container = new HBox(5);
             private final Button btnDetalhes = createActionButton("Detalhes", "#4CAF50");
-            private final Button btnEditar = createActionButton("Editar", "#FFA500");  // Botão laranja
+            private final Button btnEditar = createActionButton("Editar", "#FFA500");
             private final Button btnDeletar = createDeleteButton();
 
             {
@@ -290,7 +285,6 @@ public class TelaListarTarefas {
     private void deletarConteudo(Conteudo conteudo) {
         try {
             if (conteudo.deletar()) {
-                // Remove o conteúdo da lista observável
                 conteudos.remove(conteudo);
                 mostrarMensagemSucesso("Tarefa deletada com sucesso!");
             } else {

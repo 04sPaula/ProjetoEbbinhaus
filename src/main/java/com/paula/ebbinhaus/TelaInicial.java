@@ -26,11 +26,9 @@ public class TelaInicial {
         container.setPadding(new Insets(30));
         container.setAlignment(Pos.TOP_CENTER);
 
-        // Título
         Label titulo = new Label("Assistente de Estudos");
         titulo.setFont(Font.font("System", FontWeight.BOLD, 24));
         
-        // Subtítulo com explicação do método
         Label explicacao = new Label(
             "Baseado no método Ebbinghaus de repetição espaçada, " +
             "este aplicativo ajuda você a organizar seus estudos de forma eficiente. " +
@@ -42,11 +40,9 @@ public class TelaInicial {
         explicacao.setMaxWidth(500);
         explicacao.setFont(Font.font("System", 14));
 
-        // Separador para organização visual
         Label secaoTarefas = criarTituloSecao("Gerenciar Tarefas");
         Label secaoTestes = criarTituloSecao("Gerenciar Testes");
 
-        // Botões para Tarefas
         VBox menuTarefas = new VBox(10);
         menuTarefas.setAlignment(Pos.CENTER);
         Button btnNovaTarefa = criarBotao("Criar Nova Tarefa");
@@ -56,7 +52,6 @@ public class TelaInicial {
         btnListarTarefas.setOnAction(e -> new TelaListarTarefas(root).exibir());
         menuTarefas.getChildren().addAll(btnNovaTarefa, btnListarTarefas);
 
-        // Botões para Testes
         VBox menuTestes = new VBox(10);
         menuTestes.setAlignment(Pos.CENTER);
         Button btnAgendarTeste = criarBotao("Agendar Teste");
@@ -66,7 +61,6 @@ public class TelaInicial {
         btnListarTestes.setOnAction(e -> new TelaListarTestes(root).exibir());
         menuTestes.getChildren().addAll(btnAgendarTeste, btnListarTestes);
 
-        // Adiciona todos os elementos ao container principal
         container.getChildren().addAll(
             titulo,
             explicacao,
@@ -98,7 +92,6 @@ public class TelaInicial {
             "-fx-cursor: hand;"
         );
         
-        // Efeito hover
         botao.setOnMouseEntered(e -> 
             botao.setStyle(
                 "-fx-background-color: #ff709b;" +

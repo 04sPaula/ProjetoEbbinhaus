@@ -35,7 +35,6 @@ public class TelaEditarConteudo {
         root.setAlignment(Pos.CENTER);
         root.setStyle("-fx-background-color: white;");
 
-        // Campos de edição
         TextField nomeField = new TextField(conteudo.getNome());
         nomeField.setPromptText("Nome");
         nomeField.setStyle(
@@ -72,11 +71,9 @@ public class TelaEditarConteudo {
             "-fx-border-width: 1;"
         );
 
-        // Botões
         Button salvarBtn = new Button("Salvar");
         Button cancelarBtn = new Button("Cancelar");
 
-        // Estilo dos botões
         String buttonStyle = 
             "-fx-min-width: 100;" +
             "-fx-padding: 8;" +
@@ -93,7 +90,6 @@ public class TelaEditarConteudo {
             "-fx-border-width: 1;" +
             "-fx-text-fill: black;");
 
-        // Eventos dos botões
         salvarBtn.setOnAction(e -> {
             if (salvarAlteracoes(nomeField.getText(), descricaoArea.getText(), statusCombo.getValue())) {
                 dialog.close();
@@ -134,7 +130,6 @@ public class TelaEditarConteudo {
             int linhasAfetadas = stmt.executeUpdate();
             
             if (linhasAfetadas > 0) {
-                // Atualiza o objeto local
                 conteudo.setNome(novoNome);
                 conteudo.setDescricao(novaDescricao);
                 conteudo.setStatus(novoStatus);

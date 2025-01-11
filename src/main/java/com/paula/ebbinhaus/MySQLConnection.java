@@ -9,19 +9,17 @@ import java.sql.Statement;
 
 public class MySQLConnection {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/ebbinhaus"; // Substitua "ebbinhaus" pelo nome do seu banco
-    private static final String USER = "root"; // Substitua pelo seu usuário do MySQL
-    private static final String PASSWORD = ""; // Substitua pela sua senha do MySQL
+    private static final String URL = "jdbc:mysql://localhost:3306/ebbinhaus";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
 
-    // Obtém a conexão com o banco de dados
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
     // Cria as tabelas necessárias, se ainda não existirem
     public static void initializeDatabase() {
-        // Primeiro, criamos as tabelas que não têm foreign keys
-        String createDisciplinaTable = "CREATE TABLE IF NOT EXISTS Disciplina ("
+                String createDisciplinaTable = "CREATE TABLE IF NOT EXISTS Disciplina ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY,"
                 + "nome VARCHAR(100) NOT NULL,"
                 + "descricao TEXT,"
@@ -33,21 +31,19 @@ public class MySQLConnection {
                 + "data DATE NOT NULL"
                 + ")";
 
-        // Depois, criamos a tabela Conteudo que depende das anteriores
-        String createConteudoTable = "CREATE TABLE IF NOT EXISTS Conteudo ("
+                String createConteudoTable = "CREATE TABLE IF NOT EXISTS Conteudo ("
         	    + "id INT AUTO_INCREMENT PRIMARY KEY,"
         	    + "idTeste INT,"
         	    + "idDisciplina INT,"
         	    + "nome VARCHAR(100) NOT NULL,"
         	    + "descricao TEXT,"
         	    + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO') NOT NULL,"
-        	    + "dataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP," // Nova coluna
+        	    + "dataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP,"
         	    + "FOREIGN KEY (idTeste) REFERENCES Teste(id),"
         	    + "FOREIGN KEY (idDisciplina) REFERENCES Disciplina(id)"
         	    + ")";
 
-        // Por último, criamos a tabela Revisao que depende da tabela Conteudo
-        String createRevisaoTable = "CREATE TABLE IF NOT EXISTS Revisao ("
+                String createRevisaoTable = "CREATE TABLE IF NOT EXISTS Revisao ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY,"
                 + "conteudoId INT NOT NULL,"
                 + "dataRevisao DATE NOT NULL,"
@@ -56,7 +52,6 @@ public class MySQLConnection {
                 + ")";
 
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
-            // Executando na ordem correta
             stmt.execute(createDisciplinaTable);
             stmt.execute(createTesteTable);
             stmt.execute(createConteudoTable);
@@ -68,7 +63,6 @@ public class MySQLConnection {
         }
     }
 
-    // Exemplo de método para inserir uma disciplina
     public void insertConteudo(String nome, String descricao, String status) {
         String sql = "INSERT INTO Conteudo (nome, descricao, status) VALUES (?, ?, ?)";
 
@@ -82,7 +76,6 @@ public class MySQLConnection {
         }
     }
 
-    // Exemplo de método para buscar conteudo
     public void listConteudos() {
         String sql = "SELECT * FROM Conteudo";
 
@@ -99,7 +92,7 @@ public class MySQLConnection {
     }
 
     public static void main(String[] args) {
-        initializeDatabase(); // Inicializa o banco e cria as tabelas, se necessário
+        initializeDatabase();
         MySQLConnection db = new MySQLConnection();
     }
 }

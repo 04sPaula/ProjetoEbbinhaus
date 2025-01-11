@@ -33,7 +33,6 @@ public class Conteudo {
         this.descricao = null;
     }
 
-    // Método para deletar o conteúdo do banco de dados
     public boolean deletar() throws SQLException {
         String sql = "DELETE FROM Conteudo WHERE id = ?";
 
@@ -47,7 +46,6 @@ public class Conteudo {
         }
     }
 
-    // Método para atualizar o status no banco de dados
     public boolean atualizarStatus(Status novoStatus) throws SQLException {
         String sql = "UPDATE Conteudo SET status = ? WHERE id = ?";
         
@@ -66,7 +64,7 @@ public class Conteudo {
         }
     }
 
-    // Getters e setters existentes
+    // Getters e setters
     public int getId() {
         return id;
     }

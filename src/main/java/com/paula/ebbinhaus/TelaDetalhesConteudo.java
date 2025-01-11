@@ -23,11 +23,9 @@ public class TelaDetalhesConteudo {
         container.setPadding(new Insets(30));
         container.setAlignment(Pos.TOP_CENTER);
 
-        // Título
         Label titulo = new Label("Detalhes da Tarefa");
         titulo.setFont(Font.font("System", FontWeight.BOLD, 24));
 
-        // Informações do conteúdo
         VBox infoContainer = new VBox(10);
         infoContainer.setStyle(
             "-fx-background-color: white;" +
@@ -44,20 +42,18 @@ public class TelaDetalhesConteudo {
         Label lblDataCriacao = new Label("Data de Criação: " + 
             conteudo.getDataCriacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
 
-        // Seção de revisões
         Label lblRevisoes = new Label("Datas de Revisão Recomendadas:");
         lblRevisoes.setFont(Font.font("System", FontWeight.BOLD, 14));
 
         VBox revisoesContainer = new VBox(5);
         LocalDateTime dataCriacao = conteudo.getDataCriacao();
         
-        // Cálculo das datas de revisão segundo o método Ebbinghaus
         String[] revisoes = {
-            dataCriacao.plusDays(1).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), // 1 dia depois
-            dataCriacao.plusDays(7).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), // 1 semana depois
-            dataCriacao.plusDays(16).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), // 16 dias depois
-            dataCriacao.plusDays(35).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), // 35 dias depois
-            dataCriacao.plusMonths(2).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))  // 2 meses depois
+            dataCriacao.plusDays(1).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+            dataCriacao.plusDays(7).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+            dataCriacao.plusDays(16).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+            dataCriacao.plusDays(35).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+            dataCriacao.plusMonths(2).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
         };
 
         for (int i = 0; i < revisoes.length; i++) {
@@ -70,7 +66,6 @@ public class TelaDetalhesConteudo {
             new Separator(), lblRevisoes, revisoesContainer
         );
 
-        // Botão de voltar
         Button btnVoltar = new Button("Voltar");
         btnVoltar.setStyle(
             "-fx-background-color: #ffcbdb;" +

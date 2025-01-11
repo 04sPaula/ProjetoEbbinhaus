@@ -17,20 +17,17 @@ public class Teste {
         this.conteudos = conteudos;
     }
 
-    // Método para deletar o teste e seus conteúdos
     public boolean deletar() throws SQLException {
         try (Connection conn = MySQLConnection.getConnection()) {
-            conn.setAutoCommit(false); // Inicia transação
+            conn.setAutoCommit(false);
             
             try {
-                // Primeiro deleta os conteúdos associados
                 String sqlDeleteConteudos = "DELETE FROM Conteudo WHERE idTeste = ?";
                 try (PreparedStatement stmtConteudos = conn.prepareStatement(sqlDeleteConteudos)) {
                     stmtConteudos.setInt(1, this.id);
                     stmtConteudos.executeUpdate();
                 }
 
-                // Depois deleta o teste
                 String sqlDeleteTeste = "DELETE FROM Teste WHERE id = ?";
                 try (PreparedStatement stmtTeste = conn.prepareStatement(sqlDeleteTeste)) {
                     stmtTeste.setInt(1, this.id);
@@ -53,7 +50,6 @@ public class Teste {
         }
     }
 
-    // Método para atualizar a data do teste
     public boolean atualizarData(LocalDate novaData) throws SQLException {
         String sql = "UPDATE Teste SET data = ? WHERE id = ?";
         

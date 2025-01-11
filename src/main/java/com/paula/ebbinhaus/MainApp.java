@@ -12,7 +12,7 @@ public class MainApp extends Application {
     	
         BorderPane root = new BorderPane();
         Scene scene = new Scene(root, 800, 600);
-        primaryStage.setTitle("Ebbinhaus Task Manager");
+        primaryStage.setTitle("Seu gerenciador de estudos no método Ebbinhaus");
         primaryStage.setScene(scene);
         primaryStage.show();
 

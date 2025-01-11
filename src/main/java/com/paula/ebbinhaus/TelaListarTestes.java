@@ -19,10 +19,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 
 public class TelaListarTestes {
     private BorderPane root;
@@ -88,14 +88,22 @@ public class TelaListarTestes {
         column.setCellValueFactory(new PropertyValueFactory<>("data"));
         column.setCellFactory(col -> new TableCell<Teste, LocalDate>() {
             private final DatePicker datePicker = createStyledDatePicker();
+            private boolean skipNextUpdate = true;  // Fiz isso porque ele estava spammando uma tela de sucesso haha, ignore
 
             {
                 datePicker.setOnAction(event -> {
+                    if (skipNextUpdate) {
+                        skipNextUpdate = false;
+                        return;
+                    }
+                    
                     Teste teste = getTableRow().getItem();
                     if (teste != null) {
                         LocalDate novaData = datePicker.getValue();
-                        atualizarDataNoBanco(teste.getId(), novaData);
-                        teste.setData(novaData);
+                        Platform.runLater(() -> {
+                            atualizarDataNoBanco(teste.getId(), novaData);
+                            teste.setData(novaData);
+                        });
                     }
                 });
             }
@@ -106,6 +114,7 @@ public class TelaListarTestes {
                 if (empty || item == null) {
                     setGraphic(null);
                 } else {
+                    skipNextUpdate = true;
                     datePicker.setValue(item);
                     setGraphic(datePicker);
                 }

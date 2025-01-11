@@ -143,7 +143,7 @@ public class TelaNovoTeste {
 
     private void carregarConteudos() {
         ObservableList<Conteudo> conteudos = FXCollections.observableArrayList();
-        String sql = "SELECT id, nome, descricao, status FROM Conteudo";
+        String sql = "SELECT id, nome, descricao, status, dataCriacao FROM Conteudo";
         
         try (Connection conn = MySQLConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -162,7 +162,6 @@ public class TelaNovoTeste {
             
             listaConteudos.setItems(conteudos);
             
-            // Sobrescrevendo o toString para mostrar informação mais relevante na lista
             listaConteudos.setCellFactory(lv -> new ListCell<Conteudo>() {
                 @Override
                 protected void updateItem(Conteudo item, boolean empty) {
@@ -170,7 +169,7 @@ public class TelaNovoTeste {
                     if (empty || item == null) {
                         setText(null);
                     } else {
-                        setText(item.getId() + " - " + item.getNome() + " (" + item.getStatus() + ")");
+                        setText(item.getNome() + " (" + item.getStatus() + ")");
                     }
                 }
             });
@@ -187,7 +186,6 @@ public class TelaNovoTeste {
         }
 
         try (Connection conn = MySQLConnection.getConnection()) {
-            // Primeiro, insere o teste
             String sqlTeste = "INSERT INTO Teste (data) VALUES (?)";
             int testeId;
             
@@ -204,7 +202,6 @@ public class TelaNovoTeste {
                 }
             }
 
-            // Depois, atualiza os conteúdos selecionados com o ID do teste
             String sqlUpdateConteudo = "UPDATE Conteudo SET idTeste = ? WHERE id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sqlUpdateConteudo)) {
                 for (Conteudo conteudo : conteudosSelecionados) {

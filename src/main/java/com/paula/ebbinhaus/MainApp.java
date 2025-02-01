@@ -1,5 +1,7 @@
 package com.paula.ebbinhaus;
 
+import com.paula.ebbinhaus.telas.TelaInicial;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;

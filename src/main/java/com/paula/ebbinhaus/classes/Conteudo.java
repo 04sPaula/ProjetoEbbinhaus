@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
-import com.paula.ebbinhaus.telas.TelaInicial;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -19,7 +17,7 @@ public class Conteudo {
     private String nome;
     private String descricao;
     private Status status;
-	private LocalDateTime dataCriacao;
+    private LocalDateTime dataCriacao;
 
     public enum Status {
         A_FAZER, EM_PROGRESSO, EM_PAUSA, CONCLUIDO
@@ -40,18 +38,24 @@ public class Conteudo {
         this.descricao = null;
     }
     
-    public static void addConteudo(String nome, String descricao, String status) throws SQLException {
+    public static boolean addConteudo(String nome, String descricao, String status) throws SQLException {
         try {
             MySQLConnection db = new MySQLConnection();
             db.insertConteudo(nome, descricao, status);
+            
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Sucesso!");
-            alert.setContentText("Tarefa criada com sucesso!");
-        } catch (Exception e) {
-        	Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Erro");
-            alert.setContentText("Erro ao salvar tarefa: " + e.getMessage());
+            alert.setContentText("Conteúdo criado com sucesso!");
             alert.showAndWait();
+            
+            return true;
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erro");
+            alert.setContentText("Erro ao salvar Conteúdo: " + e.getMessage());
+            alert.showAndWait();
+            
+            return false;
         }
     }
 
@@ -83,6 +87,28 @@ public class Conteudo {
                 return true;
             }
             return false;
+        }
+    }
+    
+    public static void atualizarStatusConteudosTestesVencidos() {
+        String sql = """
+            UPDATE Conteudo c
+            JOIN Teste t ON c.idTeste = t.id
+            SET c.status = 'CONCLUIDO'
+            WHERE t.data < CURDATE() 
+            AND c.status != 'CONCLUIDO'
+        """;
+        
+        try (Connection conn = MySQLConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            int conteudosAtualizados = stmt.executeUpdate();
+            if (conteudosAtualizados > 0) {
+                System.out.println(conteudosAtualizados + " conteúdo(s) foram marcados como concluídos devido a testes passados.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao atualizar status dos conteúdos: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     

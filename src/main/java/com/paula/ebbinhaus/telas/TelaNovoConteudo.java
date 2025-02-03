@@ -25,7 +25,7 @@ public class TelaNovoConteudo {
         container.setAlignment(Pos.TOP_CENTER);
 
         // Title
-        Label titulo = new Label("Nova Tarefa");
+        Label titulo = new Label("Novo Conteúdo");
         titulo.setFont(Font.font("System", FontWeight.BOLD, 24));
         
         // Form container
@@ -34,7 +34,7 @@ public class TelaNovoConteudo {
         form.setAlignment(Pos.CENTER);
 
         // Form fields
-        TextField txtNome = createStyledTextField("Nome da Tarefa");
+        TextField txtNome = createStyledTextField("Nome do Conteúdo");
         TextArea txtDescricao = createStyledTextArea("Descrição");
         
         comboStatus = new ComboBox<>();
@@ -52,7 +52,7 @@ public class TelaNovoConteudo {
         btnVoltar.setOnAction(e -> new TelaInicial(root).exibir());
         btnSalvar.setOnAction(e -> {
 			try {
-				salvarTarefa(txtNome.getText(), txtDescricao.getText(), comboStatus.getValue());
+				salvarConteudo(txtNome.getText(), txtDescricao.getText(), comboStatus.getValue());
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
@@ -165,12 +165,16 @@ public class TelaNovoConteudo {
         return button;
     }
 
-    private void salvarTarefa(String nome, String descricao, String status) throws SQLException {
+    private void salvarConteudo(String nome, String descricao, String status) throws SQLException {
         if (nome == null || nome.isEmpty() || status == null) {
             showAlert("Erro", "Preencha todos os campos obrigatórios!");
             return;
         }
-        Conteudo.addConteudo(nome, descricao, status);
+        
+        boolean sucesso = Conteudo.addConteudo(nome, descricao, status);
+        if (sucesso) {
+            new TelaInicial(root).exibir();
+        }
     }
 
     private void showAlert(String title, String content) {

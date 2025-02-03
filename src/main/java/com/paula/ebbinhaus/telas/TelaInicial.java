@@ -1,6 +1,6 @@
 package com.paula.ebbinhaus.telas;
 
-import com.paula.ebbinhaus.classes.AtualizadorStatus;
+import com.paula.ebbinhaus.classes.Conteudo;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -20,7 +20,7 @@ public class TelaInicial {
 
     public TelaInicial(BorderPane root) {
         this.root = root;
-        AtualizadorStatus.atualizarStatusConteudosTestesVencidos();
+        Conteudo.atualizarStatusConteudosTestesVencidos();
     }
 
     public void exibir() {
@@ -34,7 +34,7 @@ public class TelaInicial {
         Label explicacao = new Label(
             "Baseado no método Ebbinghaus de repetição espaçada, " +
             "este aplicativo ajuda você a organizar seus estudos de forma eficiente. " +
-            "Crie tarefas de estudo e agende revisões nos intervalos ideais para " +
+            "Registre Conteúdos de estudo e agende revisões nos intervalos ideais para " +
             "maximizar sua retenção de conhecimento."
         );
         explicacao.setWrapText(true);
@@ -42,17 +42,17 @@ public class TelaInicial {
         explicacao.setMaxWidth(500);
         explicacao.setFont(Font.font("System", 14));
 
-        Label secaoTarefas = criarTituloSecao("Gerenciar Tarefas");
+        Label secaoConteudos = criarTituloSecao("Gerenciar Conteúdos");
         Label secaoTestes = criarTituloSecao("Gerenciar Testes");
 
-        VBox menuTarefas = new VBox(10);
-        menuTarefas.setAlignment(Pos.CENTER);
-        Button btnNovaTarefa = criarBotao("Criar Nova Tarefa");
-        Button btnListarTarefas = criarBotao("Visualizar Tarefas");
+        VBox menuConteudos = new VBox(10);
+        menuConteudos.setAlignment(Pos.CENTER);
+        Button btnNovoConteudo = criarBotao("Criar Novo Conteúdo");
+        Button btnListarConteudos = criarBotao("Visualizar Conteúdos");
         
-        btnNovaTarefa.setOnAction(e -> new TelaNovoConteudo(root).exibir());
-        btnListarTarefas.setOnAction(e -> new TelaListarConteudos(root).exibir());
-        menuTarefas.getChildren().addAll(btnNovaTarefa, btnListarTarefas);
+        btnNovoConteudo.setOnAction(e -> new TelaNovoConteudo(root).exibir());
+        btnListarConteudos.setOnAction(e -> new TelaListarConteudos(root).exibir());
+        menuConteudos.getChildren().addAll(btnNovoConteudo, btnListarConteudos);
 
         VBox menuTestes = new VBox(10);
         menuTestes.setAlignment(Pos.CENTER);
@@ -66,8 +66,8 @@ public class TelaInicial {
         container.getChildren().addAll(
             titulo,
             explicacao,
-            secaoTarefas,
-            menuTarefas,
+            secaoConteudos,
+            menuConteudos,
             secaoTestes,
             menuTestes
         );

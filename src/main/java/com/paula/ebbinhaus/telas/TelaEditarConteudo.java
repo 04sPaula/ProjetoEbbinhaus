@@ -30,7 +30,7 @@ public class TelaEditarConteudo {
         Stage dialog = new Stage();
         dialog.initModality(Modality.WINDOW_MODAL);
         dialog.initOwner(parentStage);
-        dialog.setTitle("Editar Tarefa");
+        dialog.setTitle("Editar Conteúdo");
 
         VBox root = new VBox(15);
         root.setPadding(new Insets(20));
@@ -136,14 +136,14 @@ public class TelaEditarConteudo {
                 conteudo.setDescricao(novaDescricao);
                 conteudo.setStatus(novoStatus);
                 
-                mostrarMensagemSucesso("Tarefa atualizada com sucesso!");
+                mostrarMensagemSucesso("Conteúdo atualizado com sucesso!");
                 return true;
             } else {
-                mostrarMensagemErro("Não foi possível atualizar a tarefa.");
+                mostrarMensagemErro("Não foi possível atualizar o Conteúdo.");
                 return false;
             }
         } catch (SQLException e) {
-            mostrarMensagemErro("Erro ao atualizar tarefa: " + e.getMessage());
+            mostrarMensagemErro("Erro ao atualizar Conteúdo: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

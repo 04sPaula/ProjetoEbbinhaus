@@ -40,7 +40,7 @@ public class TelaListarConteudos {
         container.setPadding(new Insets(30));
         container.setAlignment(Pos.TOP_CENTER);
 
-        Label titulo = new Label("Lista de Tarefas");
+        Label titulo = new Label("Lista de Conteúdos");
         titulo.setFont(Font.font("System", FontWeight.BOLD, 24));
         
         Label explicacao = new Label("Dica: Clique duas vezes no status para uma edição rápida, ou use o botão de editar para modificar todas as informações.");
@@ -229,8 +229,8 @@ public class TelaListarConteudos {
     private void confirmarDelecao(Conteudo conteudo) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmar Exclusão");
-        alert.setHeaderText("Deletar Tarefa");
-        alert.setContentText("Tem certeza que deseja deletar esta tarefa?");
+        alert.setHeaderText("Deletar Conteúdo");
+        alert.setContentText("Tem certeza que deseja deletar este Conteúdo?");
 
         Optional<ButtonType> resultado = alert.showAndWait();
         if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
@@ -290,13 +290,13 @@ public class TelaListarConteudos {
         try {
             if (conteudo.deletar()) {
                 conteudos.remove(conteudo);
-                mostrarMensagemSucesso("Tarefa deletada com sucesso!");
+                mostrarMensagemSucesso("Conteúdo deletado com sucesso!");
             } else {
-                mostrarMensagemErro("Não foi possível deletar a tarefa");
+                mostrarMensagemErro("Não foi possível deletar o Conteúdo");
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            mostrarMensagemErro("Erro ao deletar tarefa: " + e.getMessage());
+            mostrarMensagemErro("Erro ao deletar Conteúdo: " + e.getMessage());
         }
     }
 
@@ -338,7 +338,7 @@ public class TelaListarConteudos {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            mostrarMensagemErro("Erro ao carregar tarefas: " + e.getMessage());
+            mostrarMensagemErro("Erro ao carregar Conteúdos: " + e.getMessage());
         }
         return conteudos;
     }

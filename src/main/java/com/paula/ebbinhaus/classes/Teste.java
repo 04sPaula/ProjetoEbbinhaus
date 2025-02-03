@@ -1,10 +1,13 @@
 package com.paula.ebbinhaus.classes;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+
+import com.paula.ebbinhaus.classes.Conteudo.Status;
 
 public class Teste {
     private int id;
@@ -13,6 +16,11 @@ public class Teste {
 
     public Teste(int id, LocalDate data, List<Conteudo> conteudos) {
         this.id = id;
+        this.data = data;
+        this.conteudos = conteudos;
+    }
+
+    public Teste(LocalDate data, List<Conteudo> conteudos) {
         this.data = data;
         this.conteudos = conteudos;
     }
@@ -27,7 +35,7 @@ public class Teste {
                     stmtConteudos.setInt(1, this.id);
                     stmtConteudos.executeUpdate();
                 }
-
+                
                 String sqlDeleteTeste = "DELETE FROM Teste WHERE id = ?";
                 try (PreparedStatement stmtTeste = conn.prepareStatement(sqlDeleteTeste)) {
                     stmtTeste.setInt(1, this.id);
@@ -66,6 +74,71 @@ public class Teste {
             }
             return false;
         }
+    }
+
+    public boolean salvar() throws SQLException {
+        if (data == null || conteudos == null || conteudos.isEmpty()) {
+            throw new IllegalStateException("Data e conteúdos são obrigatórios");
+        }
+
+        try (Connection conn = MySQLConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            
+            try {
+                String sqlTeste = "INSERT INTO Teste (data) VALUES (?)";
+                try (PreparedStatement stmt = conn.prepareStatement(sqlTeste, Statement.RETURN_GENERATED_KEYS)) {
+                    stmt.setDate(1, java.sql.Date.valueOf(data));
+                    stmt.executeUpdate();
+                    
+                    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            this.id = generatedKeys.getInt(1);
+                        } else {
+                            throw new SQLException("Falha ao obter ID do teste.");
+                        }
+                    }
+                }
+
+                String sqlUpdateConteudo = "UPDATE Conteudo SET idTeste = ? WHERE id = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(sqlUpdateConteudo)) {
+                    for (Conteudo conteudo : conteudos) {
+                        stmt.setInt(1, this.id);
+                        stmt.setInt(2, conteudo.getId());
+                        stmt.executeUpdate();
+                    }
+                }
+
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
+    public static ObservableList<Conteudo> carregarConteudosDisponiveis() throws SQLException {
+        ObservableList<Conteudo> conteudos = FXCollections.observableArrayList();
+        String sql = "SELECT id, nome, descricao, status, dataCriacao FROM Conteudo";
+        
+        try (Connection conn = MySQLConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String nome = rs.getString("nome");
+                String descricao = rs.getString("descricao");
+                Status status = Status.valueOf(rs.getString("status"));
+                LocalDateTime dataCriacao = rs.getTimestamp("dataCriacao").toLocalDateTime();
+                
+                Conteudo conteudo = new Conteudo(id, nome, descricao, status, dataCriacao);
+                conteudos.add(conteudo);
+            }
+        }
+        return conteudos;
     }
 
     // Getters e Setters

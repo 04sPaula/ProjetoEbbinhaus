@@ -5,6 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
+import com.paula.ebbinhaus.telas.TelaInicial;
+
+import javafx.scene.control.Alert;
+
 public class Conteudo {
     private int id;
     private int idTeste;
@@ -31,6 +35,21 @@ public class Conteudo {
         this.nome = nome;
         this.status = status;
         this.descricao = null;
+    }
+    
+    public static void addConteudo(String nome, String descricao, String status) throws SQLException {
+        try {
+            MySQLConnection db = new MySQLConnection();
+            db.insertConteudo(nome, descricao, status);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Sucesso!");
+            alert.setContentText("Tarefa criada com sucesso!");
+        } catch (Exception e) {
+        	Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Erro");
+            alert.setContentText("Erro ao salvar tarefa: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     public boolean deletar() throws SQLException {

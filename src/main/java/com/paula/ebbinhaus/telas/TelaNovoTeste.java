@@ -1,19 +1,16 @@
 package com.paula.ebbinhaus.telas;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
-import java.sql.*;
+import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import com.paula.ebbinhaus.classes.Conteudo;
-import com.paula.ebbinhaus.classes.MySQLConnection;
-import com.paula.ebbinhaus.classes.Conteudo.Status;
+import com.paula.ebbinhaus.classes.Teste;
 
 public class TelaNovoTeste {
     private BorderPane root;
@@ -71,6 +68,45 @@ public class TelaNovoTeste {
 
         container.getChildren().addAll(titulo, form);
         root.setCenter(container);
+    }
+
+    private void carregarConteudos() {
+        try {
+            listaConteudos.setItems(Teste.carregarConteudosDisponiveis());
+            
+            listaConteudos.setCellFactory(lv -> new ListCell<Conteudo>() {
+                @Override
+                protected void updateItem(Conteudo item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        setText(item.getNome() + " (" + item.getStatus() + ")");
+                    }
+                }
+            });
+        } catch (SQLException e) {
+            showAlert("Erro", "Erro ao carregar conteúdos: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void salvarTeste(LocalDate data, ObservableList<Conteudo> conteudosSelecionados) {
+        if (data == null || conteudosSelecionados.isEmpty()) {
+            showAlert("Erro", "Por favor, selecione a data e pelo menos um conteúdo.");
+            return;
+        }
+
+        try {
+            Teste novoTeste = new Teste(data, conteudosSelecionados.stream().toList());
+            if (novoTeste.salvar()) {
+                showAlert("Sucesso", "Teste criado com sucesso!");
+                new TelaInicial(root).exibir();
+            }
+        } catch (SQLException e) {
+            showAlert("Erro", "Erro ao salvar teste: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private Label createFieldLabel(String text) {
@@ -141,85 +177,6 @@ public class TelaNovoTeste {
         ));
         
         return button;
-    }
-
-    private void carregarConteudos() {
-        ObservableList<Conteudo> conteudos = FXCollections.observableArrayList();
-        String sql = "SELECT id, nome, descricao, status, dataCriacao FROM Conteudo";
-        
-        try (Connection conn = MySQLConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String nome = rs.getString("nome");
-                String descricao = rs.getString("descricao");
-                Status status = Status.valueOf(rs.getString("status"));
-                LocalDateTime dataCriacao = rs.getTimestamp("dataCriacao").toLocalDateTime();
-                
-                Conteudo conteudo = new Conteudo(id, nome, descricao, status, dataCriacao);
-                conteudos.add(conteudo);
-            }
-            
-            listaConteudos.setItems(conteudos);
-            
-            listaConteudos.setCellFactory(lv -> new ListCell<Conteudo>() {
-                @Override
-                protected void updateItem(Conteudo item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        setText(item.getNome() + " (" + item.getStatus() + ")");
-                    }
-                }
-            });
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void salvarTeste(LocalDate data, ObservableList<Conteudo> conteudosSelecionados) {
-        if (data == null || conteudosSelecionados.isEmpty()) {
-            showAlert("Erro", "Por favor, selecione a data e pelo menos um conteúdo.");
-            return;
-        }
-
-        try (Connection conn = MySQLConnection.getConnection()) {
-            String sqlTeste = "INSERT INTO Teste (data) VALUES (?)";
-            int testeId;
-            
-            try (PreparedStatement stmt = conn.prepareStatement(sqlTeste, Statement.RETURN_GENERATED_KEYS)) {
-                stmt.setDate(1, java.sql.Date.valueOf(data));
-                stmt.executeUpdate();
-                
-                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        testeId = generatedKeys.getInt(1);
-                    } else {
-                        throw new SQLException("Falha ao obter ID do teste.");
-                    }
-                }
-            }
-
-            String sqlUpdateConteudo = "UPDATE Conteudo SET idTeste = ? WHERE id = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(sqlUpdateConteudo)) {
-                for (Conteudo conteudo : conteudosSelecionados) {
-                    stmt.setInt(1, testeId);
-                    stmt.setInt(2, conteudo.getId());
-                    stmt.executeUpdate();
-                }
-            }
-
-            showAlert("Sucesso", "Teste criado com sucesso!");
-            new TelaInicial(root).exibir();
-
-        } catch (SQLException e) {
-            showAlert("Erro", "Erro ao salvar teste: " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 
     private void showAlert(String title, String content) {

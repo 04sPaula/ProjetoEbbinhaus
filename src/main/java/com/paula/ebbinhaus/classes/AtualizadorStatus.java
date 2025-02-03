@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class AtualizadorStatusConteudo {
+public class AtualizadorStatus {
     public static void atualizarStatusConteudosTestesVencidos() {
         String sql = """
             UPDATE Conteudo c

@@ -1,5 +1,8 @@
 package com.paula.ebbinhaus.telas;
 
+import java.sql.SQLException;
+
+import com.paula.ebbinhaus.classes.Conteudo;
 import com.paula.ebbinhaus.classes.MySQLConnection;
 
 import javafx.geometry.Insets;
@@ -8,11 +11,11 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
 
-public class TelaNovaTarefa {
+public class TelaNovoConteudo {
     private BorderPane root;
     private ComboBox<String> comboStatus;
 
-    public TelaNovaTarefa(BorderPane root) {
+    public TelaNovoConteudo(BorderPane root) {
         this.root = root;
     }
     
@@ -47,7 +50,13 @@ public class TelaNovaTarefa {
         Button btnSalvar = createStyledButton("Salvar", true);
         
         btnVoltar.setOnAction(e -> new TelaInicial(root).exibir());
-        btnSalvar.setOnAction(e -> salvarTarefa(txtNome.getText(), txtDescricao.getText(), comboStatus.getValue()));
+        btnSalvar.setOnAction(e -> {
+			try {
+				salvarTarefa(txtNome.getText(), txtDescricao.getText(), comboStatus.getValue());
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		});
         
         buttonContainer.getChildren().addAll(btnVoltar, btnSalvar);
 
@@ -156,20 +165,12 @@ public class TelaNovaTarefa {
         return button;
     }
 
-    private void salvarTarefa(String nome, String descricao, String status) {
+    private void salvarTarefa(String nome, String descricao, String status) throws SQLException {
         if (nome == null || nome.isEmpty() || status == null) {
             showAlert("Erro", "Preencha todos os campos obrigatórios!");
             return;
         }
-
-        try {
-            MySQLConnection db = new MySQLConnection();
-            db.insertConteudo(nome, descricao, status);
-            showAlert("Sucesso", "Tarefa criada com sucesso!");
-            new TelaInicial(root).exibir();
-        } catch (Exception e) {
-            showAlert("Erro", "Erro ao salvar tarefa: " + e.getMessage());
-        }
+        Conteudo.addConteudo(nome, descricao, status);
     }
 
     private void showAlert(String title, String content) {

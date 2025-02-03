@@ -27,11 +27,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 
-public class TelaListarTarefas {
+public class TelaListarConteudos {
     private BorderPane root;
     private ObservableList<Conteudo> conteudos;
 
-    public TelaListarTarefas(BorderPane root) {
+    public TelaListarConteudos(BorderPane root) {
         this.root = root;
     }
 

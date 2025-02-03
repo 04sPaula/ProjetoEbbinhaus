@@ -1,6 +1,6 @@
 package com.paula.ebbinhaus.telas;
 
-import com.paula.ebbinhaus.classes.AtualizadorStatusConteudo;
+import com.paula.ebbinhaus.classes.AtualizadorStatus;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -20,7 +20,7 @@ public class TelaInicial {
 
     public TelaInicial(BorderPane root) {
         this.root = root;
-        AtualizadorStatusConteudo.atualizarStatusConteudosTestesVencidos();
+        AtualizadorStatus.atualizarStatusConteudosTestesVencidos();
     }
 
     public void exibir() {
@@ -50,8 +50,8 @@ public class TelaInicial {
         Button btnNovaTarefa = criarBotao("Criar Nova Tarefa");
         Button btnListarTarefas = criarBotao("Visualizar Tarefas");
         
-        btnNovaTarefa.setOnAction(e -> new TelaNovaTarefa(root).exibir());
-        btnListarTarefas.setOnAction(e -> new TelaListarTarefas(root).exibir());
+        btnNovaTarefa.setOnAction(e -> new TelaNovoConteudo(root).exibir());
+        btnListarTarefas.setOnAction(e -> new TelaListarConteudos(root).exibir());
         menuTarefas.getChildren().addAll(btnNovaTarefa, btnListarTarefas);
 
         VBox menuTestes = new VBox(10);

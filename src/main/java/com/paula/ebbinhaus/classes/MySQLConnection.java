@@ -19,7 +19,9 @@ public class MySQLConnection {
 
     // Cria as tabelas necessárias, se ainda não existirem
     public static void initializeDatabase() {
-                String createDisciplinaTable = "CREATE TABLE IF NOT EXISTS Disciplina ("
+        String createDisciplinaTable = "CREATE DATABASE IF NOT EXISTS EBBINHAUS"
+        		+ "USE EBBINHAUS"
+        		+ "CREATE TABLE IF NOT EXISTS Disciplina ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY,"
                 + "nome VARCHAR(100) NOT NULL,"
                 + "descricao TEXT,"
@@ -47,7 +49,7 @@ public class MySQLConnection {
                 + "id INT AUTO_INCREMENT PRIMARY KEY,"
                 + "conteudoId INT NOT NULL,"
                 + "dataRevisao DATE NOT NULL,"
-                + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO') NOT NULL,"
+                + "status ENUM('A_FAZER', 'CONCLUIDO') NOT NULL,"
                 + "FOREIGN KEY (conteudoId) REFERENCES Conteudo(id)"
                 + ")";
 

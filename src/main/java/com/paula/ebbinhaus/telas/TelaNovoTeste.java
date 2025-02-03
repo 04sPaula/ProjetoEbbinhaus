@@ -72,7 +72,7 @@ public class TelaNovoTeste {
 
     private void carregarConteudos() {
         try {
-            listaConteudos.setItems(Teste.carregarConteudosDisponiveis());
+            listaConteudos.setItems(Conteudo.carregarConteudosDisponiveis());
             
             listaConteudos.setCellFactory(lv -> new ListCell<Conteudo>() {
                 @Override

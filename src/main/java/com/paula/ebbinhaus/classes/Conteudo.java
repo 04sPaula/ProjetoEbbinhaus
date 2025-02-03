@@ -2,11 +2,14 @@ package com.paula.ebbinhaus.classes;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 import com.paula.ebbinhaus.telas.TelaInicial;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 
 public class Conteudo {
@@ -81,6 +84,28 @@ public class Conteudo {
             }
             return false;
         }
+    }
+    
+    public static ObservableList<Conteudo> carregarConteudosDisponiveis() throws SQLException {
+        ObservableList<Conteudo> conteudos = FXCollections.observableArrayList();
+        String sql = "SELECT id, nome, descricao, status, dataCriacao FROM Conteudo";
+        
+        try (Connection conn = MySQLConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String nome = rs.getString("nome");
+                String descricao = rs.getString("descricao");
+                Status status = Status.valueOf(rs.getString("status"));
+                LocalDateTime dataCriacao = rs.getTimestamp("dataCriacao").toLocalDateTime();
+                
+                Conteudo conteudo = new Conteudo(id, nome, descricao, status, dataCriacao);
+                conteudos.add(conteudo);
+            }
+        }
+        return conteudos;
     }
 
     // Getters e setters

@@ -119,28 +119,6 @@ public class Teste {
         }
     }
 
-    public static ObservableList<Conteudo> carregarConteudosDisponiveis() throws SQLException {
-        ObservableList<Conteudo> conteudos = FXCollections.observableArrayList();
-        String sql = "SELECT id, nome, descricao, status, dataCriacao FROM Conteudo";
-        
-        try (Connection conn = MySQLConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String nome = rs.getString("nome");
-                String descricao = rs.getString("descricao");
-                Status status = Status.valueOf(rs.getString("status"));
-                LocalDateTime dataCriacao = rs.getTimestamp("dataCriacao").toLocalDateTime();
-                
-                Conteudo conteudo = new Conteudo(id, nome, descricao, status, dataCriacao);
-                conteudos.add(conteudo);
-            }
-        }
-        return conteudos;
-    }
-
     // Getters e Setters
     public int getId() {
         return id;

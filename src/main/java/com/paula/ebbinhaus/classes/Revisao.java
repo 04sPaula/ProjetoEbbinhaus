@@ -14,9 +14,6 @@ public class Revisao {
     private Date dataRevisao;
     private Status status;
 
-    public enum Status{
-        A_FAZER, CONCLUIDO
-    }
 
     public Revisao(int id, int conteudoId, Date dataRevisao, Status status) {
         this.id = id;
@@ -70,7 +67,7 @@ public class Revisao {
         return id;
     }
 
-    public int getconteudoId() {
+    public int getConteudoId() {
         return conteudoId;
     }
 

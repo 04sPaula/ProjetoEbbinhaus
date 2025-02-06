@@ -21,45 +21,46 @@ public class MySQLConnection {
 
     // Cria as tabelas necessárias, se ainda não existirem
     public static void initializeDatabase() {
-        String createDisciplinaTable = "CREATE DATABASE IF NOT EXISTS EBBINHAUS"
-        		+ "USE EBBINHAUS"
-        		+ "CREATE TABLE IF NOT EXISTS Disciplina ("
+        String createDatabase = "CREATE DATABASE IF NOT EXISTS EBBINHAUS; USE EBBINHAUS;";
+
+        String createDisciplinaTable = "CREATE TABLE IF NOT EXISTS Disciplina ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY,"
                 + "nome VARCHAR(100) NOT NULL,"
                 + "descricao TEXT,"
                 + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO') NOT NULL"
-                + ")";
+                + ");";
 
         String createTesteTable = "CREATE TABLE IF NOT EXISTS Teste ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY,"
                 + "data DATE NOT NULL"
-                + ")";
+                + ");";
 
-                String createConteudoTable = "CREATE TABLE IF NOT EXISTS Conteudo ("
-        	    + "id INT AUTO_INCREMENT PRIMARY KEY,"
-        	    + "idTeste INT,"
-        	    + "idDisciplina INT,"
-        	    + "nome VARCHAR(100) NOT NULL,"
-        	    + "descricao TEXT,"
-        	    + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO') NOT NULL,"
-        	    + "dataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP,"
-        	    + "FOREIGN KEY (idTeste) REFERENCES Teste(id),"
-        	    + "FOREIGN KEY (idDisciplina) REFERENCES Disciplina(id)"
-        	    + ")";
+        String createConteudoTable = "CREATE TABLE IF NOT EXISTS Conteudo ("
+                + "id INT AUTO_INCREMENT PRIMARY KEY,"
+                + "idTeste INT,"
+                + "idDisciplina INT,"
+                + "nome VARCHAR(100) NOT NULL,"
+                + "descricao TEXT,"
+                + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO') NOT NULL,"
+                + "dataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY (idTeste) REFERENCES Teste(id),"
+                + "FOREIGN KEY (idDisciplina) REFERENCES Disciplina(id)"
+                + ");";
 
-                String createRevisaoTable = "CREATE TABLE IF NOT EXISTS Revisao ("
+        String createRevisaoTable = "CREATE TABLE IF NOT EXISTS Revisao ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY,"
                 + "conteudoId INT NOT NULL,"
                 + "dataRevisao DATE NOT NULL,"
                 + "status ENUM('A_FAZER', 'CONCLUIDO') NOT NULL,"
                 + "FOREIGN KEY (conteudoId) REFERENCES Conteudo(id)"
-                + ")";
-
+                + ");";
+        
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
-            stmt.execute(createDisciplinaTable);
-            stmt.execute(createTesteTable);
-            stmt.execute(createConteudoTable);
-            stmt.execute(createRevisaoTable);
+            stmt.executeUpdate(createDatabase);
+            stmt.executeUpdate(createDisciplinaTable);
+            stmt.executeUpdate(createTesteTable);
+            stmt.executeUpdate(createConteudoTable);
+            stmt.executeUpdate(createRevisaoTable);
             System.out.println("Tabelas criadas com sucesso!");
         } catch (SQLException e) {
             System.err.println("Erro ao criar as tabelas: " + e.getMessage());

@@ -19,10 +19,6 @@ public class Conteudo {
     private Status status;
     private LocalDateTime dataCriacao;
 
-    public enum Status {
-        A_FAZER, EM_PROGRESSO, EM_PAUSA, CONCLUIDO
-    }
-
     public Conteudo(int id, String nome, String descricao, Status status, LocalDateTime dataCriacao) {
         this.id = id;
         this.nome = nome;
@@ -35,7 +31,7 @@ public class Conteudo {
         this.id = id;
         this.nome = nome;
         this.status = status;
-        this.descricao = null;
+        this.descricao = "";
     }
     
     public static boolean addConteudo(String nome, String descricao, String status) throws SQLException {

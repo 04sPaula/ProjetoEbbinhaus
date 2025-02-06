@@ -7,8 +7,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.paula.ebbinhaus.classes.Conteudo.Status;
-
 public class Teste {
     private int id;
     private LocalDate data;

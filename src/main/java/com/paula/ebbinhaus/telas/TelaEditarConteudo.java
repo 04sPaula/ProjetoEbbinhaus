@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 import com.paula.ebbinhaus.classes.Conteudo;
 import com.paula.ebbinhaus.classes.MySQLConnection;
-import com.paula.ebbinhaus.classes.Conteudo.Status;
+import com.paula.ebbinhaus.classes.Status;
 
 public class TelaEditarConteudo {
     private final Conteudo conteudo;

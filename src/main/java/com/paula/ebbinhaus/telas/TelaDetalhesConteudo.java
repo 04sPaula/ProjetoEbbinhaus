@@ -2,13 +2,12 @@ package com.paula.ebbinhaus.telas;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.paula.ebbinhaus.classes.Conteudo;
 import com.paula.ebbinhaus.classes.Revisao;
-import com.paula.ebbinhaus.classes.Revisao.Status;
+import com.paula.ebbinhaus.classes.Status;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

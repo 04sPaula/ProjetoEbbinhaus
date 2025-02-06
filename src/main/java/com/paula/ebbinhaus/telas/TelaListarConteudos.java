@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import com.paula.ebbinhaus.classes.Conteudo;
 import com.paula.ebbinhaus.classes.MySQLConnection;
-import com.paula.ebbinhaus.classes.Conteudo.Status;
+import com.paula.ebbinhaus.classes.Status;
 
 import javafx.stage.Stage;
 

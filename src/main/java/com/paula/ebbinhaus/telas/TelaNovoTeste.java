@@ -72,6 +72,8 @@ public class TelaNovoTeste {
 
     private void carregarConteudos() {
         try {
+            listaConteudos.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+            
             listaConteudos.setItems(Conteudo.carregarConteudosDisponiveis());
             
             listaConteudos.setCellFactory(lv -> new ListCell<Conteudo>() {
@@ -85,6 +87,17 @@ public class TelaNovoTeste {
                     }
                 }
             });
+            
+            listaConteudos.setDisable(false);
+            
+            listaConteudos.setStyle(
+                "-fx-background-radius: 5;" +
+                "-fx-border-radius: 5;" +
+                "-fx-border-color: #ffcbdb;" +
+                "-fx-border-width: 2;" +
+                "-fx-selection-bar: #ffcbdb;" + 
+                "-fx-selection-bar-non-focused: #ffdde7;"
+            );
         } catch (SQLException e) {
             showAlert("Erro", "Erro ao carregar conteúdos: " + e.getMessage());
             e.printStackTrace();

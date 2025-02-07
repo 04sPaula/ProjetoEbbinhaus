@@ -27,7 +27,7 @@ public class MySQLConnection {
                 + "id INT AUTO_INCREMENT PRIMARY KEY,"
                 + "nome VARCHAR(100) NOT NULL,"
                 + "descricao TEXT,"
-                + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO') NOT NULL"
+                + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO', 'CANCELADO') NOT NULL"
                 + ");";
 
         String createTesteTable = "CREATE TABLE IF NOT EXISTS Teste ("
@@ -41,7 +41,7 @@ public class MySQLConnection {
                 + "idDisciplina INT,"
                 + "nome VARCHAR(100) NOT NULL,"
                 + "descricao TEXT,"
-                + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO') NOT NULL,"
+                + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO', 'CANCELADO') NOT NULL,"
                 + "dataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP,"
                 + "FOREIGN KEY (idTeste) REFERENCES Teste(id),"
                 + "FOREIGN KEY (idDisciplina) REFERENCES Disciplina(id)"

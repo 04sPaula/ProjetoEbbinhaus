@@ -91,23 +91,37 @@ public class TelaListarTestes {
         TableColumn<Teste, LocalDate> column = new TableColumn<>("Data");
         column.setCellValueFactory(new PropertyValueFactory<>("data"));
         column.setCellFactory(col -> new TableCell<Teste, LocalDate>() {
+            private boolean programmaticUpdate = false;
             private final DatePicker datePicker = createStyledDatePicker();
-            private boolean skipNextUpdate = true;  // Fiz isso porque ele estava spammando uma tela de sucesso haha, ignore
 
             {
                 datePicker.setOnAction(event -> {
-                    if (skipNextUpdate) {
-                        skipNextUpdate = false;
+                    if (programmaticUpdate) {
                         return;
-                    }
+                    } //Novamente uma verificação porque tava spammando tela de sucesso!!
                     
                     Teste teste = getTableRow().getItem();
                     if (teste != null) {
                         LocalDate novaData = datePicker.getValue();
-                        Platform.runLater(() -> {
-                            atualizarDataNoBanco(teste.getId(), novaData);
-                            teste.setData(novaData);
-                        });
+                        try {
+                            if (teste.atualizarData(novaData)) {
+                                Platform.runLater(() -> {
+                                    tabela.refresh();
+                                    mostrarMensagemSucesso("Data do teste atualizada com sucesso!");
+                                });
+                            } else {
+                                Platform.runLater(() -> {
+                                    mostrarMensagemErro("Não foi possível atualizar a data do teste");
+                                    datePicker.setValue(teste.getData());
+                                });
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            Platform.runLater(() -> {
+                                mostrarMensagemErro("Erro ao atualizar data do teste: " + e.getMessage());
+                                datePicker.setValue(teste.getData());
+                            });
+                        }
                     }
                 });
             }
@@ -118,8 +132,9 @@ public class TelaListarTestes {
                 if (empty || item == null) {
                     setGraphic(null);
                 } else {
-                    skipNextUpdate = true;
+                    programmaticUpdate = true;
                     datePicker.setValue(item);
+                    programmaticUpdate = false;
                     setGraphic(datePicker);
                 }
             }
@@ -254,7 +269,7 @@ public class TelaListarTestes {
         alert.setTitle("Sucesso");
         alert.setHeaderText(null);
         alert.setContentText(mensagem);
-        alert.showAndWait();
+        alert.show();
     }
 
     private void mostrarMensagemErro(String mensagem) {
@@ -262,7 +277,7 @@ public class TelaListarTestes {
         alert.setTitle("Erro");
         alert.setHeaderText(null);
         alert.setContentText(mensagem);
-        alert.showAndWait();
+        alert.show();
     }
 
     private void deletarTeste(Teste teste) {
@@ -276,24 +291,6 @@ public class TelaListarTestes {
         } catch (SQLException e) {
             e.printStackTrace();
             mostrarMensagemErro("Erro ao deletar teste: " + e.getMessage());
-        }
-    }
-
-    private void atualizarDataNoBanco(int id, LocalDate novaData) {
-        try {
-            Teste teste = testes.stream()
-                .filter(t -> t.getId() == id)
-                .findFirst()
-                .orElse(null);
-                
-            if (teste != null && teste.atualizarData(novaData)) {
-                mostrarMensagemSucesso("Data do teste atualizada com sucesso!");
-            } else {
-                mostrarMensagemErro("Não foi possível atualizar a data do teste");
-            }
-        } catch (SQLException e) {
-            mostrarMensagemErro("Erro ao atualizar data do teste: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 

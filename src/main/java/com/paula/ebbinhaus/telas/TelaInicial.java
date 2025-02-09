@@ -20,7 +20,7 @@ public class TelaInicial {
 
     public TelaInicial(BorderPane root) {
         this.root = root;
-        Conteudo.atualizarStatusConteudosTestesVencidos();
+        Conteudo.verificarTestesVencidos(null);
     }
 
     public void exibir() {

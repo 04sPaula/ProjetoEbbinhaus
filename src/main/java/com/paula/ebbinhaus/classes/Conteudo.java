@@ -6,9 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 public class Conteudo {
     private int id;
@@ -86,21 +88,69 @@ public class Conteudo {
         }
     }
     
-    public static void atualizarStatusConteudosTestesVencidos() {
+    public static void verificarTestesVencidos(javafx.stage.Window owner) {
         String sql = """
-            UPDATE Conteudo c
-            JOIN Teste t ON c.idTeste = t.id
-            SET c.status = 'CONCLUIDO'
+            SELECT t.id as testeId, t.data, GROUP_CONCAT(c.nome SEPARATOR ', ') as conteudos
+            FROM Teste t
+            JOIN Conteudo c ON c.idTeste = t.id
             WHERE t.data < CURDATE() 
-            AND c.status != 'CONCLUIDO'
+            AND c.status NOT IN ('CONCLUIDO', 'CANCELADO')
+            GROUP BY t.id, t.data
         """;
+        
+        try (Connection conn = MySQLConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                int testeId = rs.getInt("testeId");
+                java.sql.Date data = rs.getDate("data");
+                String conteudos = rs.getString("conteudos");
+                
+                Platform.runLater(() -> mostrarDialogoConfirmacao(owner, testeId, data, conteudos));
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao verificar testes vencidos: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private static void mostrarDialogoConfirmacao(javafx.stage.Window owner, int testeId, java.sql.Date data, String conteudos) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.initOwner(owner);
+        alert.setTitle("Confirmação de Teste");
+        alert.setHeaderText("Teste Pendente do dia " + data.toLocalDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        alert.setContentText("Você realizou o teste programado com os seguintes conteúdos?\n\n" + conteudos);
+        
+        ButtonType btnSim = new ButtonType("Sim, realizei");
+        ButtonType btnNao = new ButtonType("Não realizei");
+        alert.getButtonTypes().setAll(btnSim, btnNao);
+        
+        alert.showAndWait().ifPresent(response -> {
+            Status novoStatus = response == btnSim ? Status.CONCLUIDO : Status.CANCELADO;
+            atualizarStatusConteudosTeste(testeId, novoStatus);
+        });
+    }
+
+    private static void atualizarStatusConteudosTeste(int testeId, Status novoStatus) {
+        String sql = "UPDATE Conteudo SET status = ? WHERE idTeste = ?";
         
         try (Connection conn = MySQLConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
+            stmt.setString(1, novoStatus.toString());
+            stmt.setInt(2, testeId);
             int conteudosAtualizados = stmt.executeUpdate();
+            
             if (conteudosAtualizados > 0) {
-                System.out.println(conteudosAtualizados + " conteúdo(s) foram marcados como concluídos devido a testes passados.");
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Sucesso");
+                    alert.setHeaderText(null);
+                    alert.setContentText(conteudosAtualizados + " conteúdo(s) foram atualizados para " + 
+                        (novoStatus == Status.CONCLUIDO ? "concluídos" : "cancelados") + ".");
+                    alert.show();
+                });
             }
         } catch (SQLException e) {
             System.err.println("Erro ao atualizar status dos conteúdos: " + e.getMessage());

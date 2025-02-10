@@ -10,6 +10,7 @@ import java.util.List;
 public class Teste {
     private int id;
     private LocalDate data;
+    private Status Status;
     private List<Conteudo> conteudos;
 
     public Teste(int id, LocalDate data, List<Conteudo> conteudos) {
@@ -116,6 +117,25 @@ public class Teste {
             }
         }
     }
+    
+    public boolean atualizarStatus(Status novoStatus) throws SQLException {
+        String sql = "UPDATE Teste SET status = ? WHERE id = ?";
+        
+        try (Connection conn = MySQLConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, novoStatus.toString());
+            stmt.setInt(2, this.id);
+            int linhasAfetadas = stmt.executeUpdate();
+            
+            if (linhasAfetadas > 0) {
+                this.Status = novoStatus;
+                return true;
+            }
+            return false;
+        }
+    }
+
 
     // Getters e Setters
     public int getId() {
@@ -132,6 +152,14 @@ public class Teste {
 
     public void setData(LocalDate data) {
         this.data = data;
+    }
+    
+    public Status getStatus() {
+        return Status;
+    }
+
+    public void setStatus(Status status) {
+        this.Status = status;
     }
 
     public List<Conteudo> getConteudos() {

@@ -30,7 +30,11 @@ import javafx.scene.text.FontWeight;
 public class TelaListarConteudos {
     private BorderPane root;
     private ObservableList<Conteudo> conteudos;
-
+    private ObservableList<Conteudo> todosConteudos;
+    private ObservableList<Conteudo> conteudosFiltrados;
+    private TableView<Conteudo> tabela;
+    private ToggleGroup grupoFiltros;
+    
     public TelaListarConteudos(BorderPane root) {
         this.root = root;
     }
@@ -42,39 +46,117 @@ public class TelaListarConteudos {
 
         Label titulo = new Label("Lista de Conteúdos");
         titulo.setFont(Font.font("System", FontWeight.BOLD, 24));
-        
-        Label explicacao = new Label("Dica: Clique duas vezes no status para uma edição rápida, ou use o botão de editar para modificar todas as informações.");
-        explicacao.setStyle("-fx-text-fill: #666666; -fx-font-style: italic;");
 
-        TableView<Conteudo> tabela = createStyledTableView();
+        HBox filterContainer = new HBox(10);
+        filterContainer.setAlignment(Pos.CENTER);
         
-                TableColumn<Conteudo, Integer> colunaId = new TableColumn<>("ID");
-        colunaId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        grupoFiltros = new ToggleGroup();
         
-        TableColumn<Conteudo, String> colunaNome = new TableColumn<>("Nome");
-        colunaNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
-        colunaNome.setPrefWidth(200);
+        ToggleButton btnAtivos = createFilterToggleButton("Ativos", true);
+        ToggleButton btnInativos = createFilterToggleButton("Inativos", false);
+        ToggleButton btnTodos = createFilterToggleButton("Todos", false);
         
-        TableColumn<Conteudo, String> colunaDescricao = new TableColumn<>("Descrição");
-        colunaDescricao.setCellValueFactory(new PropertyValueFactory<>("descricao"));
-        colunaDescricao.setPrefWidth(300);
+        btnAtivos.setToggleGroup(grupoFiltros);
+        btnInativos.setToggleGroup(grupoFiltros);
+        btnTodos.setToggleGroup(grupoFiltros);
         
-        TableColumn<Conteudo, Status> colunaStatus = createStatusColumn();
-        TableColumn<Conteudo, Void> colunaAcoes = createActionsColumn();
+        btnAtivos.setSelected(true);
+        
+        filterContainer.getChildren().addAll(btnAtivos, btnInativos, btnTodos);
+        
+        tabela = createStyledTableView();
 
-        tabela.getColumns().addAll(colunaId, colunaNome, colunaDescricao, colunaStatus, colunaAcoes);
-        
-        conteudos = carregarConteudos();
-        tabela.setItems(conteudos);
+		TableColumn<Conteudo, Integer> colunaId = new TableColumn<>("ID");
+		colunaId.setCellValueFactory(new PropertyValueFactory<>("id"));
+		
+		TableColumn<Conteudo, String> colunaNome = new TableColumn<>("Nome");
+		colunaNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+		colunaNome.setPrefWidth(200);
+		
+		TableColumn<Conteudo, String> colunaDescricao = new TableColumn<>("Descrição");
+		colunaDescricao.setCellValueFactory(new PropertyValueFactory<>("descricao"));
+		colunaDescricao.setPrefWidth(300);
+		
+		TableColumn<Conteudo, Status> colunaStatus = createStatusColumn();
+		TableColumn<Conteudo, Void> colunaAcoes = createActionsColumn();
 
+		tabela.getColumns().addAll(colunaId, colunaNome, colunaDescricao, colunaStatus, colunaAcoes);
+        
+        todosConteudos = carregarConteudos();
+        conteudosFiltrados = FXCollections.observableArrayList();
+        
+        grupoFiltros.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) {
+                oldVal.setSelected(true);
+                return;
+            }
+            atualizarFiltro();
+        });
+        
+        atualizarFiltro();
+        
         HBox buttonContainer = new HBox(10);
         buttonContainer.setAlignment(Pos.CENTER);
         Button btnVoltar = createStyledButton("Voltar", false);
         btnVoltar.setOnAction(e -> new TelaInicial(root).exibir());
         buttonContainer.getChildren().add(btnVoltar);
 
-        container.getChildren().addAll(titulo, explicacao, tabela, buttonContainer);
+        container.getChildren().addAll(titulo, filterContainer, tabela, buttonContainer);
         root.setCenter(container);
+    }
+
+    private ToggleButton createFilterToggleButton(String text, boolean primary) {
+        ToggleButton button = new ToggleButton(text);
+        button.setMinWidth(100);
+        button.setMinHeight(35);
+        
+        String defaultStyle = primary ?
+            "-fx-background-color: white;" +
+            "-fx-text-fill: #ffcbdb;" +
+            "-fx-border-color: #ffcbdb;" :
+            "-fx-background-color: white;" +
+            "-fx-text-fill: #666666;" +
+            "-fx-border-color: #666666;";
+            
+        String selectedStyle =
+            "-fx-background-color: #ffcbdb;" +
+            "-fx-text-fill: white;" +
+            "-fx-border-color: #ffcbdb;";
+        
+        button.setStyle(defaultStyle +
+            "-fx-border-width: 2;" +
+            "-fx-border-radius: 15;" +
+            "-fx-background-radius: 15;"
+        );
+        
+        button.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+            button.setStyle((isSelected ? selectedStyle : defaultStyle) +
+                "-fx-border-width: 2;" +
+                "-fx-border-radius: 15;" +
+                "-fx-background-radius: 15;"
+            );
+        });
+        
+        return button;
+    }
+
+    private void atualizarFiltro() {
+        ToggleButton selectedButton = (ToggleButton) grupoFiltros.getSelectedToggle();
+        conteudosFiltrados.clear();
+        
+        if (selectedButton == null || selectedButton.getText().equals("Todos")) {
+            conteudosFiltrados.addAll(todosConteudos);
+        } else if (selectedButton.getText().equals("Ativos")) {
+            conteudosFiltrados.addAll(todosConteudos.filtered(
+                conteudo -> Status.isAtivo(conteudo.getStatus())
+            ));
+        } else if (selectedButton.getText().equals("Inativos")) {
+            conteudosFiltrados.addAll(todosConteudos.filtered(
+                conteudo -> Status.isInativo(conteudo.getStatus())
+            ));
+        }
+        
+        tabela.setItems(conteudosFiltrados);
     }
 
     private TableView<Conteudo> createStyledTableView() {

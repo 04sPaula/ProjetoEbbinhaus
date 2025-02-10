@@ -5,5 +5,13 @@ public enum Status {
     EM_PROGRESSO, 
     EM_PAUSA, 
     CONCLUIDO,
-    CANCELADO
+    CANCELADO;
+    
+    public static boolean isAtivo(Status status) {
+        return status == EM_PROGRESSO || status == A_FAZER;
+    }
+
+    public static boolean isInativo(Status status) {
+        return status == EM_PAUSA || status == CONCLUIDO || status == CANCELADO;
+    }
 }

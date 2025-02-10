@@ -44,7 +44,10 @@ public class TelaListarTestes {
 
         Label titulo = new Label("Lista de Testes");
         titulo.setFont(Font.font("System", FontWeight.BOLD, 24));
-
+        
+        HBox filterContainer = new HBox(10);
+        filterContainer.setAlignment(Pos.CENTER);
+        
         tabela = createStyledTableView();
         
         TableColumn<Teste, Integer> colunaId = new TableColumn<>("ID");
@@ -62,14 +65,15 @@ public class TelaListarTestes {
         
         testes = carregarTestes();
         tabela.setItems(testes);
-
+        
+        // Resto do código da tela...
         HBox buttonContainer = new HBox(10);
         buttonContainer.setAlignment(Pos.CENTER);
         Button btnVoltar = createStyledButton("Voltar", false);
         btnVoltar.setOnAction(e -> new TelaInicial(root).exibir());
         buttonContainer.getChildren().add(btnVoltar);
 
-        container.getChildren().addAll(titulo, tabela, buttonContainer);
+        container.getChildren().addAll(titulo, filterContainer, tabela, buttonContainer);
         root.setCenter(container);
     }
 

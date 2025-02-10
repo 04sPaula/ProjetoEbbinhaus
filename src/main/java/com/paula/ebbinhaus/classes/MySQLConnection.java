@@ -23,16 +23,11 @@ public class MySQLConnection {
     public static void initializeDatabase() {
         String createDatabase = "CREATE DATABASE IF NOT EXISTS EBBINHAUS; ";
 
-        String createDisciplinaTable = "CREATE TABLE IF NOT EXISTS Disciplina ("
-                + "id INT AUTO_INCREMENT PRIMARY KEY,"
-                + "nome VARCHAR(100) NOT NULL,"
-                + "descricao TEXT,"
-                + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO', 'CANCELADO') NOT NULL"
-                + ");";
-
         String createTesteTable = "CREATE TABLE IF NOT EXISTS Teste ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY,"
-                + "data DATE NOT NULL"
+                + "data DATE NOT NULL,"
+                + "status ENUM('A_FAZER', 'EM_PROGRESSO', 'EM_PAUSA', 'CONCLUIDO', 'CANCELADO')"
+                + "NOT NULL DEFAULT 'A_FAZER'"
                 + ");";
 
         String createConteudoTable = "CREATE TABLE IF NOT EXISTS Conteudo ("
@@ -57,7 +52,6 @@ public class MySQLConnection {
         
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(createDatabase);
-            stmt.executeUpdate(createDisciplinaTable);
             stmt.executeUpdate(createTesteTable);
             stmt.executeUpdate(createConteudoTable);
             stmt.executeUpdate(createRevisaoTable);

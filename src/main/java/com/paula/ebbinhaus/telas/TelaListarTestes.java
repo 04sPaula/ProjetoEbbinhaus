@@ -301,9 +301,10 @@ public class TelaListarTestes {
     private ObservableList<Teste> carregarTestes() {
         ObservableList<Teste> testes = FXCollections.observableArrayList();
         String sql = """
-            SELECT t.id, t.data, c.id AS conteudoId, c.nome AS conteudoNome
-            FROM Teste t
-            LEFT JOIN Conteudo c ON c.idTeste = t.id
+			SELECT t.id, t.data, t.status, c.id AS conteudoId, c.nome AS conteudoNome
+			FROM Teste t
+			LEFT JOIN Conteudo c ON c.idTeste = t.id
+
         """;
 
         try (Connection conn = MySQLConnection.getConnection();
